@@ -1,0 +1,3 @@
+/mnt/dados/Works/ARM/code/USB_Bootloader/build/CMakeFiles/lpc21isp_program_main.hex.dir
+/mnt/dados/Works/ARM/code/USB_Bootloader/build/CMakeFiles/main.dir
+/mnt/dados/Works/ARM/code/USB_Bootloader/build/CMakeFiles/program_target.dir
