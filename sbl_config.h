@@ -5,16 +5,16 @@
  *      Purpose: USB Flash updater
  *      Version: V1.0
  *----------------------------------------------------------------------------
- * Software that is described herein is for illustrative purposes only  
- * which provides customers with programming information regarding the  
- * products. This software is supplied "AS IS" without any warranties.  
- * NXP Semiconductors assumes no responsibility or liability for the 
- * use of the software, conveys no license or title under any patent, 
- * copyright, or mask work right to the product. NXP Semiconductors 
- * reserves the right to make changes in the software without 
- * notification. NXP Semiconductors also make no representation or 
- * warranty that such application will be suitable for the specified 
- * use without further testing or modification. 
+ * Software that is described herein is for illustrative purposes only
+ * which provides customers with programming information regarding the
+ * products. This software is supplied "AS IS" without any warranties.
+ * NXP Semiconductors assumes no responsibility or liability for the
+ * use of the software, conveys no license or title under any patent,
+ * copyright, or mask work right to the product. NXP Semiconductors
+ * reserves the right to make changes in the software without
+ * notification. NXP Semiconductors also make no representation or
+ * warranty that such application will be suitable for the specified
+ * use without further testing or modification.
  *---------------------------------------------------------------------------*/
 
 /***********************************************************************
@@ -31,11 +31,11 @@
 // <h> Flash Configuration
 //   <o0> User Start Sector <0-29>
 //   <o1> Device Type
-//		  	<7=>  LPC17x1 - 8 KB
-//			<15=> LPC17x2 - 64 KB
-//			<17=> LPC17x4 - 128 KB
-//			<21=> LPC17x5/6 - 256 KB
-//			<29=> LPC17x8 - 512 KB
+//              <7=>  LPC17x1 - 8 KB
+//            <15=> LPC17x2 - 64 KB
+//            <17=> LPC17x4 - 128 KB
+//            <21=> LPC17x5/6 - 256 KB
+//            <29=> LPC17x8 - 512 KB
 //   <o2> Code Read Protection
 //        <0x11223344=> NO CRP <0x12345678=> CRP1 <0x87654321=> CRP2 <0x43218765=> CRP3
 // </h>
@@ -54,7 +54,7 @@
  */
 #define FLASH_BUF_SIZE 512
 #define USER_FLASH_START (sector_start_map[USER_START_SECTOR])
-#define USER_FLASH_END	 (sector_end_map[MAX_USER_SECTOR])
+#define USER_FLASH_END     (sector_end_map[MAX_USER_SECTOR])
 #define USER_FLASH_SIZE  ((USER_FLASH_END - USER_FLASH_START) + 1)
 #define MAX_FLASH_SECTOR 30
 
@@ -124,5 +124,5 @@
 #define SECTOR_28_END       0x00077FFF
 #define SECTOR_29_END       0x0007FFFF
 
-                          
+
 #endif  /* __SBL_CONFIG_H__ */

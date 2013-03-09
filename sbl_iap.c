@@ -37,7 +37,7 @@ SECTOR_8_END,SECTOR_9_END,SECTOR_10_END,SECTOR_11_END,SECTOR_12_END,            
 SECTOR_13_END,SECTOR_14_END,SECTOR_15_END,SECTOR_16_END,SECTOR_17_END,           \
 SECTOR_18_END,SECTOR_19_END,SECTOR_20_END,SECTOR_21_END,SECTOR_22_END,           \
 SECTOR_23_END,SECTOR_24_END,SECTOR_25_END,SECTOR_26_END,                         \
-SECTOR_27_END,SECTOR_28_END,SECTOR_29_END										 };
+SECTOR_27_END,SECTOR_28_END,SECTOR_29_END                                         };
 
 unsigned param_table[5];
 unsigned result_table[5];
@@ -59,20 +59,20 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
   unsigned i;
 
     if (flash_address == 0)
-	{
-	  /* Store flash start address */
-	  flash_address = (unsigned *)dst;
-	}
-	for( i = 0;i<no_of_bytes;i++ )
-	{
-	  flash_buf[(byte_ctr+i)] = *(src+i);
+    {
+      /* Store flash start address */
+      flash_address = (unsigned *)dst;
     }
-	byte_ctr = byte_ctr + no_of_bytes;
+    for( i = 0;i<no_of_bytes;i++ )
+    {
+      flash_buf[(byte_ctr+i)] = *(src+i);
+    }
+    byte_ctr = byte_ctr + no_of_bytes;
 
-	if( byte_ctr == FLASH_BUF_SIZE)
-	{
-	  /* We have accumulated enough bytes to trigger a flash write */
-	  find_erase_prepare_sector(SystemCoreClock/1000, (unsigned)flash_address);
+    if( byte_ctr == FLASH_BUF_SIZE)
+    {
+      /* We have accumulated enough bytes to trigger a flash write */
+      find_erase_prepare_sector(SystemCoreClock/1000, (unsigned)flash_address);
       if(result_table[0] != CMD_SUCCESS)
       {
         while(1); /* No way to recover. Just let Windows report a write failure */
@@ -82,10 +82,10 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
       {
         while(1); /* No way to recover. Just let Windows report a write failure */
       }
-	  /* Reset byte counter and flash address */
-	  byte_ctr = 0;
-	  flash_address = 0;
-	}
+      /* Reset byte counter and flash address */
+      byte_ctr = 0;
+      flash_address = 0;
+    }
     return(CMD_SUCCESS);
 }
 
@@ -112,7 +112,7 @@ void find_erase_prepare_sector(unsigned cclk, unsigned flash_address)
 
 void write_data(unsigned cclk,unsigned flash_address,unsigned * flash_data_buf, unsigned count)
 {
-	__disable_irq();
+    __disable_irq();
     param_table[0] = COPY_RAM_TO_FLASH;
     param_table[1] = flash_address;
     param_table[2] = (unsigned)flash_data_buf;
@@ -151,25 +151,25 @@ void iap_entry(unsigned param_tab[],unsigned result_tab[])
 
 void execute_user_code(void)
 {
-	void (*user_code_entry)(void);
+    void (*user_code_entry)(void);
 
-	unsigned *p;	// used for loading address of reset handler from user flash
+    unsigned *p;    // used for loading address of reset handler from user flash
 
-	/* Change the Vector Table to the USER_FLASH_START
-	in case the user application uses interrupts */
+    /* Change the Vector Table to the USER_FLASH_START
+    in case the user application uses interrupts */
 
-	SCB->VTOR = (USER_FLASH_START & 0x1FFFFF80);
+    SCB->VTOR = (USER_FLASH_START & 0x1FFFFF80);
 
-	// Load contents of second word of user flash - the reset handler address
-	// in the applications vector table
-	p = (unsigned *)(USER_FLASH_START +4);
+    // Load contents of second word of user flash - the reset handler address
+    // in the applications vector table
+    p = (unsigned *)(USER_FLASH_START +4);
 
-	// Set user_code_entry to be the address contained in that second word
-	// of user flash
-	user_code_entry = (void *) *p;
+    // Set user_code_entry to be the address contained in that second word
+    // of user flash
+    user_code_entry = (void *) *p;
 
-	// Jump to user application
-   	user_code_entry();
+    // Jump to user application
+       user_code_entry();
 
 }
 
@@ -177,43 +177,43 @@ void execute_user_code(void)
 int user_code_present(void)
 {
 
-   	param_table[0] = BLANK_CHECK_SECTOR;
-    	param_table[1] = USER_START_SECTOR;
-   	param_table[2] = USER_START_SECTOR;
-   	iap_entry(param_table,result_table);
-	if( result_table[0] == CMD_SUCCESS )
-	{
+       param_table[0] = BLANK_CHECK_SECTOR;
+        param_table[1] = USER_START_SECTOR;
+       param_table[2] = USER_START_SECTOR;
+       iap_entry(param_table,result_table);
+    if( result_table[0] == CMD_SUCCESS )
+    {
 
-		return (FALSE);
-	}
+        return (FALSE);
+    }
 
-	return (TRUE);
+    return (TRUE);
 }
 
 void check_isp_entry_pin(void)
 {
-	unsigned long i,j;
+    unsigned long i,j;
 
-	for(i=0; i < 60 ; i++)
-	{
-		// TODO abstract this somehow so you can easily change the pin used
-  		if( (LPC_GPIO2->FIOPIN & (1<<12)) == 0 )
-		{
-			break;
-		}
-		for(j=0;j< (1<<15);j++);
-	}
-	if( i == 60)
-	{
-		execute_user_code();
-	}
+    for(i=0; i < 60 ; i++)
+    {
+        // TODO abstract this somehow so you can easily change the pin used
+          if( (LPC_GPIO2->FIOPIN & (1<<12)) == 0 )
+        {
+            break;
+        }
+        for(j=0;j< (1<<15);j++);
+    }
+    if( i == 60)
+    {
+        execute_user_code();
+    }
 }
 
 void erase_user_flash(void)
 {
     prepare_sector(USER_START_SECTOR,MAX_USER_SECTOR,SystemCoreClock/1000);
     erase_sector(USER_START_SECTOR,MAX_USER_SECTOR,SystemCoreClock/1000);
-	if(result_table[0] != CMD_SUCCESS)
+    if(result_table[0] != CMD_SUCCESS)
     {
       while(1); /* No way to recover. Just let Windows report a write failure */
     }
