@@ -102,8 +102,7 @@ void enter_usb_isp(void)
  * Main entry point for bootloader
  *********************************/
 
-int main (void)
-{
+int main (void) {
 	// Check to see if there is a user application in the LPC1768's flash memory.
 	if( user_code_present() )
 	{

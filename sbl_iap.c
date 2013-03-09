@@ -1,14 +1,14 @@
 //-----------------------------------------------------------------------------
-// Software that is described herein is for illustrative purposes only  
-// which provides customers with programming information regarding the  
-// products. This software is supplied "AS IS" without any warranties.  
-// NXP Semiconductors assumes no responsibility or liability for the 
-// use of the software, conveys no license or title under any patent, 
-// copyright, or mask work right to the product. NXP Semiconductors 
-// reserves the right to make changes in the software without 
-// notification. NXP Semiconductors also make no representation or 
-// warranty that such application will be suitable for the specified 
-// use without further testing or modification. 
+// Software that is described herein is for illustrative purposes only
+// which provides customers with programming information regarding the
+// products. This software is supplied "AS IS" without any warranties.
+// NXP Semiconductors assumes no responsibility or liability for the
+// use of the software, conveys no license or title under any patent,
+// copyright, or mask work right to the product. NXP Semiconductors
+// reserves the right to make changes in the software without
+// notification. NXP Semiconductors also make no representation or
+// warranty that such application will be suitable for the specified
+// use without further testing or modification.
 //-----------------------------------------------------------------------------
 
 /***********************************************************************
@@ -152,10 +152,10 @@ void iap_entry(unsigned param_tab[],unsigned result_tab[])
 void execute_user_code(void)
 {
 	void (*user_code_entry)(void);
-	
+
 	unsigned *p;	// used for loading address of reset handler from user flash
 
-	/* Change the Vector Table to the USER_FLASH_START 
+	/* Change the Vector Table to the USER_FLASH_START
 	in case the user application uses interrupts */
 
 	SCB->VTOR = (USER_FLASH_START & 0x1FFFFF80);
@@ -196,7 +196,8 @@ void check_isp_entry_pin(void)
 
 	for(i=0; i < 60 ; i++)
 	{
-  		if( (LPC_GPIO1->FIOPIN & (1<<18)) == 0 )
+		// TODO abstract this somehow so you can easily change the pin used
+  		if( (LPC_GPIO2->FIOPIN & (1<<12)) == 0 )
 		{
 			break;
 		}
