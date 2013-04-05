@@ -160,9 +160,11 @@ void execute_user_code(void)
 
     SCB->VTOR = (USER_FLASH_START & 0x1FFFFF80);
 
-    // Load contents of second word of user flash - the reset handler address
-    // in the applications vector table
-    p = (unsigned *)(USER_FLASH_START +4);
+    // Load second word of user flash, the address of the reset handler.
+    // Note that the data here isn't an address we need to dereference again,
+    // but it's the reset handler itself. The Cortex M3 in Thumb mode requires
+    // that you add 1 to this address before jumping.
+    p = (unsigned *)(USER_FLASH_START + 4 + 1);
 
     // Set user_code_entry to be the address contained in that second word
     // of user flash
