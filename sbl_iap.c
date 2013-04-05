@@ -166,11 +166,10 @@ void execute_user_code(void)
 
     // Set user_code_entry to be the address contained in that second word
     // of user flash
-    user_code_entry = (void *) *p;
+    user_code_entry = (void *) p;
 
     // Jump to user application
-       user_code_entry();
-
+    user_code_entry();
 }
 
 
