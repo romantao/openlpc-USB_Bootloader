@@ -155,9 +155,13 @@ void execute_user_code(void)
 
     unsigned *p;    // used for loading address of reset handler from user flash
 
-    /* Change the Vector Table to the USER_FLASH_START
-    in case the user application uses interrupts */
+    // Disable interrupts and turn off all peripherals so the user code doesn't
+    // accidentally jump back to the old vector table
+    __disable_irq();
+    LPC_SC->PCONP = 0x001817BE;
 
+    /* Change the Vector Table to the USER_FLASH_START
+       in case the user application uses interrupts */
     SCB->VTOR = (USER_FLASH_START & 0x1FFFFF80);
 
     // Load second word of user flash, the address of the reset handler.
