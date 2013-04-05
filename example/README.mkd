@@ -1,0 +1,10 @@
+Example User Program for USB Bootloader
+========================================
+
+To build this example:
+
+    $ make
+
+Then follow the instructions in src/README to load it to flash using the
+bootloader. This program *will not* work if you flash it to bare metal - the
+vector table is in the wrong place.
