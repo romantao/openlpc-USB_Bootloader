@@ -4,14 +4,17 @@
 GCC_BIN =
 PROJECT = blink
 CMSIS_PATH = ../src/CDL/CMSISv2p00_LPC17xx
+DRIVER_PATH = ../src/CDL/LPC17xxLib
 SYS_OBJECTS =
-INCLUDE_PATHS = -I. -I./usbstack/include -I$(DRIVER_PATH)/inc -I$(CMSIS_PATH)/inc
+INCLUDE_PATHS = -I. -I./usbstack/include -I$(DRIVER_PATH)/inc \
+				-I$(CMSIS_PATH)/inc -ITimer
 LIBRARY_PATHS =
 LIBRARIES =
 LINKER_SCRIPT = LPC1768.ld
 
 LOCAL_C_SRCS = $(CMSIS_PATH)/src/core_cm3.c $(CMSIS_PATH)/src/system_LPC17xx.c \
-			   $(wildcard $(CMSIS_PATH)/source/*.c) main.c startup.c
+			   $(wildcard $(CMSIS_PATH)/source/*.c) main.c startup.c \
+			   Timer/timer.c
 LOCAL_OBJ_FILES = $(LOCAL_C_SRCS:.c=.o)
 OBJECTS = $(LOCAL_OBJ_FILES)
 
