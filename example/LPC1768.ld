@@ -45,7 +45,6 @@ SECTIONS
 {
     .text :
     {
-        *startup.o
         KEEP(*(.isr_vector))
         *(.text*)
 

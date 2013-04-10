@@ -168,11 +168,11 @@ void execute_user_code(void)
     // Note that the data here isn't an address we need to dereference again,
     // but it's the reset handler itself. The Cortex M3 in Thumb mode requires
     // that you add 1 to this address before jumping.
-    p = (unsigned *)(USER_FLASH_START + 4 + 1);
+    p = (unsigned *)(USER_FLASH_START);
 
     // Set user_code_entry to be the address contained in that second word
     // of user flash
-    user_code_entry = (void *) p;
+    user_code_entry = (void *) *p;
 
     // Jump to user application
     user_code_entry();
