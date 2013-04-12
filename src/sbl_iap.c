@@ -174,6 +174,7 @@ void execute_user_code(void)
     // of user flash.
     user_code_entry = (void *) *p;
 
+    __enable_irq();
     // Jump to user application
     user_code_entry();
 }
