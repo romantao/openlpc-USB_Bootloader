@@ -13,7 +13,7 @@ OBJECTS = $(LOCAL_C_SRCS:.c=.o)
 ###############################################################################
 CC = $(GCC_BIN)arm-none-eabi-gcc
 CPP = $(GCC_BIN)arm-none-eabi-g++
-CC_FLAGS = -g -ggdb -c -Os -fno-common -fmessage-length=0 -Wall -fno-exceptions -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections
+CC_FLAGS = -c -fno-common -fmessage-length=0 -Wall -fno-exceptions -mcpu=cortex-m3 -mthumb -ffunction-sections -fdata-sections
 ONLY_C_FLAGS = -std=gnu99
 ONLY_CPP_FLAGS = -std=gnu++98
 CC_SYMBOLS = -DTARGET_LPC1768 -DTOOLCHAIN_GCC_ARM \
@@ -25,6 +25,12 @@ AS = $(GCC_BIN)arm-none-eabi-as
 LD = $(GCC_BIN)arm-none-eabi-gcc
 LD_FLAGS = -mcpu=cortex-m3 -mthumb -Wl,--gc-sections,-Map=$(PROJECT).map
 LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc
+
+ifdef DEBUG
+CC_FLAGS += -g -ggdb
+else
+CC_FLAGS += -Os
+endif
 
 OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 
