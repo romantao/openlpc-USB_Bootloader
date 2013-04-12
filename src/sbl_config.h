@@ -58,6 +58,9 @@
 #define USER_FLASH_SIZE  ((USER_FLASH_END - USER_FLASH_START) + 1)
 #define MAX_FLASH_SECTOR 30
 
+#define BOOTLOADER_ENTRY_GPIO_PORT 1
+#define BOOTLOADER_ENTRY_GPIO_PIN 12
+
 /* Define start address of each Flash sector */
 #define SECTOR_0_START      0x00000000
 #define SECTOR_1_START      0x00001000

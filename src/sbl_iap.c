@@ -201,8 +201,8 @@ void check_isp_entry_pin(void)
 
     for(i=0; i < 60 ; i++)
     {
-        // TODO abstract this somehow so you can easily change the pin used
-          if( (LPC_GPIO2->FIOPIN & (1<<12)) == 0 )
+          if((LPC_GPIO2->FIOPIN & (BOOTLOADER_ENTRY_GPIO_PORT
+                  << BOOTLOADER_ENTRY_GPIO_PIN)) == 0)
         {
             break;
         }
