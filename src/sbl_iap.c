@@ -164,14 +164,14 @@ void execute_user_code(void)
        in case the user application uses interrupts */
     SCB->VTOR = (USER_FLASH_START & 0x1FFFFF80);
 
-    // Load second word of user flash, the address of the reset handler.
-    // Note that the data here isn't an address we need to dereference again,
-    // but it's the reset handler itself. The Cortex M3 in Thumb mode requires
-    // that you add 1 to this address before jumping.
-    p = (unsigned *)(USER_FLASH_START);
+    // The very top of the user flash should contain the interrupt handler
+    // vector. The first word should be the initial stack pointer. The second
+    // word should contain the address of the Reset_Handler (i.e.
+    // USER_FLASH_START + 4).
+    p = (unsigned *)(USER_FLASH_START + 4);
 
     // Set user_code_entry to be the address contained in that second word
-    // of user flash
+    // of user flash.
     user_code_entry = (void *) *p;
 
     // Jump to user application
