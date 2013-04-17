@@ -1,0 +1,7 @@
+build
+.project
+.cproject
+*.bin
+*.elf
+*.map
+*.o

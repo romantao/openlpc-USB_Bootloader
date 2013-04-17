@@ -16,31 +16,33 @@
  * example code for use in RDB1768 secondary USB bootloader based on
  * LPCUSB USB stack.
  *
- * diskimage.c - definition of boot sector and root directory for FAT12
- *               tables used for accessing LPC1768 flash by RDB1768 USB
- *               bootloader.
+ * disk.h - header file related to disk/fat/flash for bootloader using
+ *          LPCUSB stack mass storage to access LPC1768 flash memory
  *
  * *********************************************************************/
 
 
-#include "disk.h"
+#ifndef __DISK_H__
+#define __DISK_H__
 
-/* FAT12 Boot sector constants */
-const unsigned char BootSect[] = {
-0xEB,0x3C,0x90,0x4D,0x53,0x44,0x4F,0x53,0x35,0x2E,0x30,0x00,0x02,BLOCKS_PER_CLUSTER,0x01,0x00,
-0x01,0x10,0x00,0xEC,0x03,0xF8,0x02,0x00,0x01,0x00,0x01,0x00,0x00,0x00,
-};
+#include "type.h"
 
-/* FAT12 Root directory entry constants */
-const unsigned char RootDirEntry[DIR_ENTRY] = {
- 'L', 'P', 'C', '1', '7', '5', '9',' ', ' ', ' ', ' ', 0x28,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
- 'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', 'B', 'I', 'N',0x20,0x18,0xbc,0x41,0x97,
-0x37,0x38,0x37,0x38,0x00,0x00,0x3d,0x6e,0x2b,0x38,0x02,0x00,0x00,0xD0,0x07,0x00,
- };
+/* Mass Storage 'Disk' Memory Layout */
+#define MSC_MemorySize  ( BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE + USER_FLASH_SIZE )
+#define MSC_BlockSize   512
+#define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 
-/* RAM to store the file allocation table */
-unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
+#define BOOT_SECT_SIZE     MSC_BlockSize
+#define ROOT_DIR_SIZE   (MSC_BlockSize * 1)
+#define FAT_SIZE        (MSC_BlockSize * 2)
 
+#define BLOCKS_PER_CLUSTER  64
+#define NO_OF_CLUSTERS     (MSC_BlockCount/BLOCKS_PER_CLUSTER)
 
+#define DIR_ENTRY 64
 
+extern unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];  /* RAM to store the file allocation table */
+extern const unsigned char RootDirEntry[DIR_ENTRY];                       /* Root directory entry constants */
+extern const unsigned char BootSect[];
+
+#endif  /* __DISK_H__ */
