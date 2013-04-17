@@ -1,7 +1,20 @@
 openlpc-USB_Bootloader
 ======================
 
-LPC17xx USB bootloader based on a Mass Storage Device
+This repository contains a USB bootloader compatible with the LPC17xx
+microcontroller. The lineage of this bootloader:
+
+* Originally based off of NXP's [AN10866 LPC1700 secondary
+  bootloader](http://www.lpcware.com/content/nxpfile/an10866-lpc1700-secondary-usb-bootloader)
+* Code Red modified the bootloader to use the BSD licensed LPCUSB library,
+  instead of the restrictively licensed USB stack from Keil (which could only be
+  used with the uVision/ARM development tools).
+* Modifications made for OpenLPC project (not sure on the details)
+* Chris Peplin replaced Code Red's fork of the LPCUSB library with a Git
+  submodule pointing to a branch in the LPCUSB library that supports the
+  LPC17xx, and re-used as many example files from the LPCUSB project directly.
+* Chris also replaced the startup files with a Git submodule pointer to the ARM
+  CDL project.
 
 ## Installing the Bootloader
 
@@ -39,3 +52,38 @@ To flash, hold down the bootloader entry button while powering on. Then:
 
 where `/dev/sdc` is the device name of the LPC17xx. No need to unmount or
 anything after that, just reset the board.
+
+## License
+
+The LPCUSB library is made availble under the BSD license. It is linked to from
+this project as a Git submodule.
+
+The core of the bootloader is originally developed by NXP, and is licensed under
+NXP's permissive example code license:
+
+    Software that is described herein is for illustrative purposes only
+    which provides customers with programming information regarding the
+    products. This software is supplied "AS IS" without any warranties.
+    NXP Semiconductors assumes no responsibility or liability for the
+    use of the software, conveys no license or title under any patent,
+    copyright, or mask work right to the product. NXP Semiconductors
+    reserves the right to make changes in the software without
+    notification. NXP Semiconductors also make no representation or
+    warranty that such application will be suitable for the specified
+    use without further testing or modification.
+
+A few remaining pieces were developed by Code Red, and are available under a
+more restrictive license (`main.c` and `blockdev_flash.c`):
+
+    The software is owned by Code Red Technologies and/or its suppliers, and is
+    protected under applicable copyright laws.  All rights are reserved.  Any
+    use in violation of the foregoing restrictions may subject the user to criminal
+    sanctions under applicable laws, as well as to civil liability for the breach
+    of the terms and conditions of this license.
+
+    THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+    OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+    MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+    USE OF THIS SOFTWARE FOR COMMERCIAL DEVELOPMENT AND/OR EDUCATION IS SUBJECT
+    TO A CURRENT END USER LICENSE AGREEMENT (COMMERCIAL OR EDUCATIONAL) WITH
+    CODE RED TECHNOLOGIES LTD.

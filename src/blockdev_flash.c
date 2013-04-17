@@ -30,7 +30,7 @@
 
 #include "sbl_config.h"
 #include "sbl_iap.h"
-#include "lpcusb_type.h"
+#include "type.h"
 #include "disk.h"
 
 #include <string.h>
@@ -123,7 +123,7 @@ int BlockDevRead(U32 dwAddress, U8 * pbBuf)
 {
     U32 offset;
 
-      DWORD i;
+      unsigned int i;
       BYTE data;
       BYTE * firmware;
       firmware = (BYTE *)USER_FLASH_START;
