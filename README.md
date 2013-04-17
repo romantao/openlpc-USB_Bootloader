@@ -18,7 +18,7 @@ microcontroller. The lineage of this bootloader:
 
 ## Installing the Bootloader
 
-    $ git submodule update --init
+    $ script/bootstrap.sh
     $ cd src
     $ make
 
