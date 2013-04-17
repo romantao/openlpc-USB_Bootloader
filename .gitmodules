@@ -1,6 +1,3 @@
-[submodule "CDL"]
-	path = CDL
-	url = https://github.com/openxc/nxp-cdl
 [submodule "src/CDL"]
 	path = src/CDL
 	url = https://github.com/openxc/nxp-cdl
