@@ -27,6 +27,30 @@ the board and the board powered up:
 
     $ make flash
 
+## Building User Firmware
+
+See the simple program in the `example` directory for an example of how to build
+a program for the bootloader.
+
+The only change required is your linker script - instead of starting the user
+program at flash memory location 0, start it at `0x10000`, e.g.:
+
+    FLASH (rx) : ORIGIN = 0x10000, LENGTH = 512K - 0x10000
+
+If you are using the `SystemInit()` function from the ARM CDL, be aware that it
+sets the vector table offset register (`VTOR`) back to `0`, so interrupts will
+not work. A workaround is to manually set the `VTOR` to the location of your
+interrupt vectors at startup:
+
+    void Reset_Handler(void) {
+        SystemInit();
+        SCB->VTOR = (uint32_t) interrupt_vectors;
+        ...
+    }
+
+This workaround doesn't have any negative effects if you use the same code
+running on bare metal.
+
 ## Flashing User Code
 
 ### Windows / OS X
@@ -36,8 +60,7 @@ hitting the reset button. A USB drive should appear.
 
 * Delete the firmware.bin file
 * Copy your new firmware.bin over (the filename doesn't matter)
-* Unmount and reset the MCU
-
+* Unmount and reset the microcontroller
 
 ### Linux
 
@@ -52,6 +75,12 @@ To flash, hold down the bootloader entry button while powering on. Then:
 
 where `/dev/sdc` is the device name of the LPC17xx. No need to unmount or
 anything after that, just reset the board.
+
+There's a utility script at `example/flash.sh` to automate these two steps,
+since sometimes it can take a few seconds before the LPC17xx filesystem can be
+written, and you have to keep retrying the mdel command. Run it like so:
+
+    $ ./flash.sh /dev/sdc new-firmware.bin
 
 ## License
 
