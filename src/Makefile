@@ -1,4 +1,15 @@
+GCC_ARM_ON_PATH = $(shell command -v arm-none-eabi-gcc >/dev/null; echo $$?)
+
+ifneq ($(GCC_ARM_ON_PATH),0)
+GCC_BIN = ../dependencies/gcc-arm-embedded/bin/
+endif
+
+ifndef JTAG_INTERFACE
+	JTAG_INTERFACE = olimex-arm-usb-ocd
+endif
+
 GCC_BIN =
+OPENOCD_CONF_BASE = ../conf/openocd
 PROJECT = bootloader
 CMSIS_PATH = ./CDL/CMSISv2p00_LPC17xx
 DRIVER_PATH = ./CDL/LPC17xxLib
@@ -58,7 +69,9 @@ $(PROJECT).bin: $(PROJECT).elf
 	$(OBJCOPY) -O binary $< $@
 
 flash: all
-	@openocd -f flash.cfg
+	@echo "Flashing bootloader via JTAG with OpenOCD..."
+	@openocd -f $(OPENOCD_CONF_BASE)/interface/$(JTAG_INTERFACE).cfg -f $(OPENOCD_CONF_BASE)/flash.cfg
+	@echo "$(GREEN)Flashed bootloader successfully.$(COLOR_RESET)"
 
 gdb: all
 	@openocd -f gdb.cfg
