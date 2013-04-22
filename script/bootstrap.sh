@@ -164,7 +164,7 @@ set -e
 
 # ARM / LPC17XX Dependencies
 
-if ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
+if true || ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
 
     echo "Installing GCC for ARM Embedded..."
 
