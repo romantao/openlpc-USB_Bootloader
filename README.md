@@ -76,11 +76,11 @@ To flash, hold down the bootloader entry button while powering on. Then:
 where `/dev/sdc` is the device name of the LPC17xx. No need to unmount or
 anything after that, just reset the board.
 
-There's a utility script at `example/flash.sh` to automate these two steps,
+There's a utility script at `script/flash.sh` to automate these two steps,
 since sometimes it can take a few seconds before the LPC17xx filesystem can be
 written, and you have to keep retrying the mdel command. Run it like so:
 
-    $ ./flash.sh /dev/sdc new-firmware.bin
+    $ ../script/flash.sh /dev/sdc blink.bin
 
 ## License
 
