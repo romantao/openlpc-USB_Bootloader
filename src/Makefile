@@ -1,7 +1,7 @@
 GCC_ARM_ON_PATH = $(shell command -v arm-none-eabi-gcc >/dev/null; echo $$?)
 
 GCC_BIN =
-ifeq ($(GCC_ARM_ON_PATH),0)
+ifneq ($(GCC_ARM_ON_PATH),0)
 GCC_BIN = ../dependencies/gcc-arm-embedded/bin/
 endif
 
