@@ -45,30 +45,6 @@ int BlockDevGetSize(U32 *pdwDriveSize)
 
 }
 
-/*
-int BlockDevWrite(U32 dwAddress, U8 * pbBuf)
-{
-    static U32 lba = 0;
-
-    if (lba < 1) {
-        // Can't write boot sector
-    } else if (lba < 4) {
-        // wants to write the FAT or root dir
-        memcpy(&Fat_RootDir[MSC_BlockSize * (lba - 1)], pbBuf, MSC_BlockSize);
-
-    } else if(lba < MSC_BlockCount){
-        unsigned int addr = USER_FLASH_START + MSC_BlockSize * (lba - 4);
-        write_flash((unsigned *)addr, pbBuf, MSC_BlockSize);
-    } else {
-        // out of bounds!
-        return 0;
-    }
-    lba++;
-    return 0;
-
-}*/
-
-
 int BlockDevWrite(U32 dwAddress, U8 * pbBuf)
 {
 
