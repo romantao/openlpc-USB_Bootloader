@@ -27,7 +27,6 @@
 //
 //*****************************************************************************
 
-
 #include "sbl_config.h"
 #include "sbl_iap.h"
 #include "type.h"
@@ -35,125 +34,97 @@
 
 #include <string.h>
 
-extern BOOL  user_flash_erased; // from main_bootloader.c
+extern BOOL user_flash_erased; // from main.c
 
-int BlockDevGetSize(U32 *pdwDriveSize)
-{
+int BlockDevGetSize(U32 *pdwDriveSize) {
     *pdwDriveSize = (512 * 1024)- sector_start_map[USER_START_SECTOR];
 
     return 0;
-
 }
 
-int BlockDevWrite(U32 dwAddress, U8 * pbBuf)
-{
+int BlockDevWrite(U32 dwAddress, U8 * pbBuf) {
+    BYTE* firmware;
+    firmware = (BYTE*)USER_FLASH_START;
+    U32 length = 512;
+    U32 i;
 
-    BYTE * firmware;
-    firmware = (BYTE *)USER_FLASH_START;
+    U32 offset = 512 * dwAddress;
+    if(offset < BOOT_SECT_SIZE) {
+        // Can't write boot sector
+    } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
+        // modifying an entry in the root directory
+        for(i = 0; i < length; i++) {
+            Fat_RootDir[(offset + i) - BOOT_SECT_SIZE] = pbBuf[i];
 
+            // erasing a file, mark first byte of entry with 0xe5
+            if(pbBuf[i] == 0xe5 ) {
+                if((offset+i) == BOOT_SECT_SIZE + FAT_SIZE + 32 ) {
+                    // Delete user flash when firmware.bin is erased
+                    if(user_flash_erased == FALSE ) {
+                        erase_user_flash();
+                        user_flash_erased = TRUE;
+                    }
+                }
+            }
+        }
+    } else {
+        write_flash((unsigned *)(firmware + (offset - (
+                        BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE))),
+                    (char *)pbBuf,length);
+        // [pbBuf casted to signed char pointer as that is what write_flash
+        // routine expects]
+    }
+    return 0;
+}
+
+int BlockDevRead(U32 dwAddress, U8 * pbBuf) {
     U32 offset;
+
+    unsigned int i;
+    BYTE data;
+    BYTE* firmware;
+    firmware = (BYTE*)USER_FLASH_START;
 
     U32 length =512;
 
-    U32 i;
-
-    offset = 512* dwAddress;
-
-    if (offset < BOOT_SECT_SIZE)
-    {
-      // Can't write boot sector
-    }
-    else if (offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE))
-         {
-           for ( i = 0; i<length; i++)
-           {
-             Fat_RootDir[(offset+i) - BOOT_SECT_SIZE] = pbBuf[i];
-
-             if ( pbBuf[i] == 0xe5 )
-             {
-                 if ( (offset+i) == BOOT_SECT_SIZE + FAT_SIZE + 32 )
-                 {
-                    // Delete user flash when firmware.bin is erased
-                    if( user_flash_erased == FALSE )
-                    {
-                      erase_user_flash();
-                      user_flash_erased = TRUE;
-                    }
-                 }
-
-             }
-           }
-         }
-         else
-         {
-           write_flash((unsigned *)(firmware + (offset - (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE))),(char *)pbBuf,length);
-           // [pbBuf casted to signed char pointer as that is what write_flash routine expects]
-         }
-    return 0;
-
-}
-
-
-
-int BlockDevRead(U32 dwAddress, U8 * pbBuf)
-{
-    U32 offset;
-
-      unsigned int i;
-      BYTE data;
-      BYTE * firmware;
-      firmware = (BYTE *)USER_FLASH_START;
-
-        U32 length =512;
-
     offset = 512 * dwAddress;
 
+    for(i = 0; i<length; i++) {
+        if(offset < BOOT_SECT_SIZE) {
 
-      for ( i = 0; i<length; i++)
-      {
-        if (offset < BOOT_SECT_SIZE)
-        {
+            switch (offset) {
+                case 19:
 
-          switch (offset)
-          {
-            case 19:
+                    data = (BYTE)(MSC_BlockCount & 0xFF);
+                    break;
+                case 20:
 
-              data = (BYTE)(MSC_BlockCount & 0xFF);
-            break;
-          case 20:
-
-              data = (BYTE)((MSC_BlockCount >> 8) & 0xFF);
-            break;
-            case 510:
-              data = 0x55;
-            break;
-            case 511:
-              data = 0xAA;
-            break;
-            default:
-            if ( offset > 29 )
-            {
-              data = 0x0;
+                    data = (BYTE)((MSC_BlockCount >> 8) & 0xFF);
+                    break;
+                case 510:
+                    data = 0x55;
+                    break;
+                case 511:
+                    data = 0xAA;
+                    break;
+                default:
+                    if(offset > 29 ) {
+                        data = 0x0;
+                    } else {
+                        data = BootSect[offset];
+                    }
+                    break;
             }
-            else
-            {
-              data = BootSect[offset];
-            }
-            break;
-          }
 
+        } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
+            data = Fat_RootDir[offset - BOOT_SECT_SIZE];
+        } else {
+            data = *(firmware + (offset - (BOOT_SECT_SIZE +
+                            FAT_SIZE + ROOT_DIR_SIZE)));
         }
-        else if (offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE))
-             {
-               data = Fat_RootDir[offset - BOOT_SECT_SIZE];
-             }
-             else
-             {
-                 data = *(firmware + (offset - (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)));
-               }
 
         pbBuf[i] = data;
         offset++;
-      }
+    }
     return 0;
 }

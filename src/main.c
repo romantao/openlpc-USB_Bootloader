@@ -42,15 +42,12 @@ BOOL  user_flash_erased;
 // USB mass storage driver - in msc_usb_start.c
 void usb_msc_start (void);
 
-
 /*****************************************************************************
  * enter_usb_isp() is the routine called if the bootloader determines that the
  * USB interface needs starting to allow the user to upload a new application
  *  into the LPC1768's flash memory
  *****************************************************************************/
-void enter_usb_isp(void)
-{
-
+void enter_usb_isp(void) {
     uint32_t n, m , next_cluster;
 
     user_flash_erased = FALSE;
@@ -62,13 +59,10 @@ void enter_usb_isp(void)
     Fat_RootDir[2]= 0xFF;
     /* Start cluster of a file is indicated by the Directory entry = 2 */
     m = 3;
-    for ( n = 3;n < NO_OF_CLUSTERS+2;n+=2) {
-        if( n == ((NO_OF_CLUSTERS+2)-1) )
-        {
+    for(n = 3;n < NO_OF_CLUSTERS+2;n+=2) {
+        if(n == ((NO_OF_CLUSTERS+2)-1)) {
           next_cluster = 0xFFF;
-        }
-        else
-        {
+        } else {
           next_cluster = n + 1;
         }
           Fat_RootDir[m] = (BYTE)n & 0xFF;
@@ -78,7 +72,7 @@ void enter_usb_isp(void)
     }
 
     /* Copy root directory entries */
-    for (n = 0; n < DIR_ENTRY ; n++) {             /* Copy Initial Disk Image */
+    for(n = 0; n < DIR_ENTRY ; n++) {             /* Copy Initial Disk Image */
         Fat_RootDir[(FAT_SIZE+n)] = RootDirEntry[n];  /*   from Flash to RAM     */
     }
 
@@ -96,16 +90,13 @@ void enter_usb_isp(void)
     // Note - should never actually return from usb_msc_start ().
 }
 
-
-
 /*********************************
  * Main entry point for bootloader
  *********************************/
 
 int main (void) {
     // Check to see if there is a user application in the LPC1768's flash memory.
-    if( user_code_present() )
-    {
+    if(user_code_present()) {
         // There is an application, but need to check if user is pressing the button
         // to indicate they want to upload a new application.
         check_isp_entry_pin();

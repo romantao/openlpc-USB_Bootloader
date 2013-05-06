@@ -74,4 +74,4 @@ flash: all
 	@echo "$(GREEN)Flashed bootloader successfully.$(COLOR_RESET)"
 
 gdb: all
-	@openocd -f gdb.cfg
+	@openocd -f $(OPENOCD_CONF_BASE)/gdb.cfg
