@@ -50,7 +50,7 @@ OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 all: $(PROJECT).bin
 
 clean:
-	rm -f $(PROJECT).bin $(PROJECT).elf $(OBJECTS) *.o
+	rm -f $(PROJECT).bin $(PROJECT).elf $(OBJECTS) *.o *.map
 
 .s.o:
 	$(AS)  $(CC_FLAGS) $(CC_SYMBOLS) -o $@ $<
