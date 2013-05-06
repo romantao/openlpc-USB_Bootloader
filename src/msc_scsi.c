@@ -374,5 +374,3 @@ U8 * SCSIHandleData(U8 *pbCDB, U8 iCDBLen, U8 *pbData, U32 dwOffset)
     // default: return pointer to start of block buffer
     return abBlockBuf;
 }
-
-

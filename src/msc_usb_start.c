@@ -204,4 +204,3 @@ void usb_msc_start (void)
         USBHwISR();
     }
 }
-

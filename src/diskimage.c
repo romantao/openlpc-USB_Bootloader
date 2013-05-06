@@ -41,6 +41,3 @@ const unsigned char RootDirEntry[DIR_ENTRY] = {
 
 /* RAM to store the file allocation table */
 unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
-
-
-
