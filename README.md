@@ -53,7 +53,7 @@ running on bare metal.
 
 ## Flashing User Code
 
-### Windows / OS X
+### Windows
 
 To flash, hold down the bootloader entry button while plugging into USB or
 hitting the reset button. A USB drive should appear.
@@ -61,6 +61,22 @@ hitting the reset button. A USB drive should appear.
 * Delete the firmware.bin file
 * Copy your new firmware.bin over (the filename doesn't matter)
 * Unmount and reset the microcontroller
+
+### Mac OS X
+
+There is an [issue](https://github.com/openxc/openlpc-USB_Bootloader/issues/6)
+with writing the firmware using Finder right now, so instead you must use the
+command line.
+
+To flash, hold down the bootloader entry button while plugging into USB or
+hitting the reset button. A USB drive should appear.
+
+Copy your new firmware.bin over the top of the existeing firmware.bin from the
+command line:
+
+  $ cp newfirmware.bin /Volumes/LPC1759/firmware.bin
+
+Eject and reset the microcontroller.
 
 ### Linux
 
