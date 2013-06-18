@@ -71,7 +71,7 @@ command line.
 To flash, hold down the bootloader entry button while plugging into USB or
 hitting the reset button. A USB drive should appear.
 
-Copy your new firmware.bin over the top of the existeing firmware.bin from the
+Copy your new firmware.bin over the top of the existing firmware.bin from the
 command line:
 
   $ cp newfirmware.bin /Volumes/LPC1759/firmware.bin
