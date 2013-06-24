@@ -53,6 +53,11 @@ running on bare metal.
 
 ## Flashing User Code
 
+Note that the `firmware.bin` file will always look the same (with an old
+modification date and the same `firmware.bin` filename), even if you reflash and
+remount the bootloader. It's not a true filesystem, we are just creating a fake
+file so you can write to it from standard file browser tools.
+
 ### Windows
 
 To flash, hold down the bootloader entry button while plugging into USB or
