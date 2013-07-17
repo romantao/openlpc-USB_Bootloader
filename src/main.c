@@ -31,13 +31,14 @@
 //*****************************************************************************
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "disk.h"
 #include "sbl_iap.h"
 #include "sbl_config.h"
 
 #include "LPC17xx.h"
 
-BOOL  user_flash_erased;
+bool  user_flash_erased;
 
 // USB mass storage driver - in msc_usb_start.c
 void usb_msc_start (void);
@@ -50,7 +51,7 @@ void usb_msc_start (void);
 void enter_usb_isp(void) {
     uint32_t n, m , next_cluster;
 
-    user_flash_erased = FALSE;
+    user_flash_erased = false;
 
     // Generate File Allocation Table to save Flash space
     // First Two FAT entries are reserved
@@ -65,9 +66,9 @@ void enter_usb_isp(void) {
         } else {
           next_cluster = n + 1;
         }
-          Fat_RootDir[m] = (BYTE)n & 0xFF;
-          Fat_RootDir[m+1] = (((BYTE)next_cluster & 0xF) << 4) | ((BYTE)(n>>8)&0xF);
-          Fat_RootDir[m+2] = (BYTE)(next_cluster >> 4) & 0xFF;
+          Fat_RootDir[m] = (uint8_t)n & 0xFF;
+          Fat_RootDir[m+1] = (((uint8_t)next_cluster & 0xF) << 4) | ((uint8_t)(n>>8)&0xF);
+          Fat_RootDir[m+2] = (uint8_t)(next_cluster >> 4) & 0xFF;
         m = m+3;
     }
 
@@ -77,10 +78,10 @@ void enter_usb_isp(void) {
     }
 
     /* Correct file size entry for file firmware.bin */
-    Fat_RootDir[FAT_SIZE+60] = (BYTE)(USER_FLASH_SIZE & 0xFF);
-    Fat_RootDir[FAT_SIZE+61] = (BYTE)(USER_FLASH_SIZE >> 8);
-    Fat_RootDir[FAT_SIZE+62] = (BYTE)(USER_FLASH_SIZE >> 16);
-    Fat_RootDir[FAT_SIZE+63] = (BYTE)(USER_FLASH_SIZE >> 24);
+    Fat_RootDir[FAT_SIZE+60] = (uint8_t)(USER_FLASH_SIZE & 0xFF);
+    Fat_RootDir[FAT_SIZE+61] = (uint8_t)(USER_FLASH_SIZE >> 8);
+    Fat_RootDir[FAT_SIZE+62] = (uint8_t)(USER_FLASH_SIZE >> 16);
+    Fat_RootDir[FAT_SIZE+63] = (uint8_t)(USER_FLASH_SIZE >> 24);
 
 
     // Start up LPCUSB mass storage system to allow user to copy

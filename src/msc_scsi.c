@@ -52,6 +52,10 @@
 #include "msc_scsi.h"
 #include "disk.h"
 
+#ifndef MIN
+#define MIN(a,b)	((a)<(b)?(a):(b))
+#endif
+
 #define BLOCKSIZE        512
 
 // SBC2 mandatory SCSI commands
@@ -80,9 +84,9 @@
 #define INVALID_FIELD_IN_CDB    0x052400
 
 //    Sense code, which is set on error conditions
-static U32            dwSense;    // hex: 00aabbcc, where aa=KEY, bb=ASC, cc=ASCQ
+static uint32_t            dwSense;    // hex: 00aabbcc, where aa=KEY, bb=ASC, cc=ASCQ
 
-static const U8        abInquiry[] = {
+static const uint8_t        abInquiry[] = {
     0x00,        // PDT = direct-access device
     0x80,        // removeable medium bit = set
     0x05,        // version = complies to SPC3
@@ -98,18 +102,18 @@ static const U8        abInquiry[] = {
 };
 
 //    Data for "request sense" command. The 0xFF are filled in later
-static const U8 abSense[] = { 0x70, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x0A,
+static const uint8_t abSense[] = { 0x70, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x0A,
                               0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00,
                               0x00, 0x00 };
 
 //    Buffer for holding one block of disk data
-static U8 abBlockBuf[512];
+static uint8_t abBlockBuf[512];
 
 typedef struct {
-    U8        bOperationCode;
-    U8        abLBA[3];
-    U8        bLength;
-    U8        bControl;
+    uint8_t        bOperationCode;
+    uint8_t        abLBA[3];
+    uint8_t        bLength;
+    uint8_t        bControl;
 } TCDB6;
 
 
@@ -135,19 +139,19 @@ void SCSIReset(void) {
     IN        pbCDB        Command data block
             iCDBLen        Command data block len
     OUT        *piRspLen    Length of intended response data:
-            *pfDevIn    TRUE if data is transferred from device-to-host
+            *pfDevIn    true if data is transferred from device-to-host
 
     Returns a pointer to the data exchange buffer if successful,
     return NULL otherwise.
 **************************************************************************/
-U8* SCSIHandleCmd(U8* pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn) {
-    static const U8 aiCDBLen[] = {6, 10, 10, 0, 16, 12, 0, 0};
+uint8_t* SCSIHandleCmd(uint8_t* pbCDB, uint8_t iCDBLen, int *piRspLen, bool *pfDevIn) {
+    static const uint8_t aiCDBLen[] = {6, 10, 10, 0, 16, 12, 0, 0};
     int i;
-    U32 dwLen, dwLBA;
-    U8 bGroupCode;
+    uint32_t dwLen, dwLBA;
+    uint8_t bGroupCode;
 
     // default direction is from device to host
-    *pfDevIn = TRUE;
+    *pfDevIn = true;
 
     TCDB6* pCDB = (TCDB6 *)pbCDB;
     // check CDB length
@@ -204,7 +208,7 @@ U8* SCSIHandleCmd(U8* pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn) {
         dwLen = (pbCDB[7] << 8) | pbCDB[8];
         DBG("WRITE10, LBA=%d, len=%d\n", dwLBA, dwLen);
         *piRspLen = dwLen * BLOCKSIZE;
-        *pfDevIn = FALSE;
+        *pfDevIn = false;
         break;
 
     case SCSI_CMD_VERIFY_10:
@@ -252,10 +256,10 @@ U8* SCSIHandleCmd(U8* pbCDB, U8 iCDBLen, int *piRspLen, BOOL *pfDevIn) {
     Returns a pointer to the next data to be exchanged if successful,
     returns NULL otherwise.
 **************************************************************************/
-U8* SCSIHandleData(U8* pbCDB, U8 iCDBLen, U8* pbData, U32 dwOffset) {
-    U32 dwLBA;
-    U32 dwBufPos, dwBlockNr;
-    U32 dwDevSize, dwMaxBlock;
+uint8_t* SCSIHandleData(uint8_t* pbCDB, uint8_t iCDBLen, uint8_t* pbData, uint32_t dwOffset) {
+    uint32_t dwLBA;
+    uint32_t dwBufPos, dwBlockNr;
+    uint32_t dwDevSize, dwMaxBlock;
 
     switch (((TCDB6*)pbCDB)->bOperationCode) {
 

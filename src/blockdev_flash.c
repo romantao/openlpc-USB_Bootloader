@@ -27,6 +27,8 @@
 //
 //*****************************************************************************
 
+#include <stdint.h>
+#include <stdbool.h>
 #include "sbl_config.h"
 #include "sbl_iap.h"
 #include "type.h"
@@ -34,21 +36,21 @@
 
 #include <string.h>
 
-extern BOOL user_flash_erased; // from main.c
+extern bool user_flash_erased; // from main.c
 
-int BlockDevGetSize(U32 *pdwDriveSize) {
+int BlockDevGetSize(uint32_t *pdwDriveSize) {
     *pdwDriveSize = (512 * 1024)- sector_start_map[USER_START_SECTOR];
 
     return 0;
 }
 
-int BlockDevWrite(U32 dwAddress, U8 * pbBuf) {
-    BYTE* firmware;
-    firmware = (BYTE*)USER_FLASH_START;
-    U32 length = 512;
-    U32 i;
+int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
+    uint8_t* firmware;
+    firmware = (uint8_t*)USER_FLASH_START;
+    uint32_t length = 512;
+    uint32_t i;
 
-    U32 offset = 512 * dwAddress;
+    uint32_t offset = 512 * dwAddress;
     if(offset < BOOT_SECT_SIZE) {
         // Can't write boot sector
     } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
@@ -60,9 +62,9 @@ int BlockDevWrite(U32 dwAddress, U8 * pbBuf) {
             if(pbBuf[i] == 0xe5 ) {
                 if((offset+i) == BOOT_SECT_SIZE + FAT_SIZE + 32 ) {
                     // Delete user flash when firmware.bin is erased
-                    if(user_flash_erased == FALSE ) {
+                    if(user_flash_erased == false ) {
                         erase_user_flash();
-                        user_flash_erased = TRUE;
+                        user_flash_erased = true;
                     }
                 }
             }
@@ -77,15 +79,15 @@ int BlockDevWrite(U32 dwAddress, U8 * pbBuf) {
     return 0;
 }
 
-int BlockDevRead(U32 dwAddress, U8 * pbBuf) {
-    U32 offset;
+int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
+    uint32_t offset;
 
     unsigned int i;
-    BYTE data;
-    BYTE* firmware;
-    firmware = (BYTE*)USER_FLASH_START;
+    uint8_t data;
+    uint8_t* firmware;
+    firmware = (uint8_t*)USER_FLASH_START;
 
-    U32 length =512;
+    uint32_t length =512;
 
     offset = 512 * dwAddress;
 
@@ -95,11 +97,11 @@ int BlockDevRead(U32 dwAddress, U8 * pbBuf) {
             switch (offset) {
                 case 19:
 
-                    data = (BYTE)(MSC_BlockCount & 0xFF);
+                    data = (uint8_t)(MSC_BlockCount & 0xFF);
                     break;
                 case 20:
 
-                    data = (BYTE)((MSC_BlockCount >> 8) & 0xFF);
+                    data = (uint8_t)((MSC_BlockCount >> 8) & 0xFF);
                     break;
                 case 510:
                     data = 0x55;

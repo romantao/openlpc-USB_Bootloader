@@ -41,9 +41,9 @@
 #define MAX_PACKET_SIZE    64
 #define LE_WORD(x)        ((x)&0xFF),((x)>>8)
 
-static U8 abClassReqData[4];
+static uint8_t abClassReqData[4];
 
-static const U8 abDescriptors[] = {
+static const uint8_t abDescriptors[] = {
 
 // device descriptor
     0x12,
@@ -120,15 +120,15 @@ static const U8 abDescriptors[] = {
         Handle mass storage class request
 
 **************************************************************************/
-static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData) {
+static bool HandleClassRequest(TSetupPacket *pSetup, int *piLen, uint8_t **ppbData) {
     if(pSetup->wIndex != 0) {
         DBG("Invalid idx %X\n", pSetup->wIndex);
-        return FALSE;
+        return false;
     }
 
     if(pSetup->wValue != 0) {
         DBG("Invalid val %X\n", pSetup->wValue);
-        return FALSE;
+        return false;
     }
 
     switch (pSetup->bRequest) {
@@ -142,16 +142,16 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData) {
     // MSC reset
     case 0xFF:
         if(pSetup->wLength > 0) {
-            return FALSE;
+            return false;
         }
         MSCBotReset();
         break;
 
     default:
         DBG("Unhandled class\n");
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 
@@ -179,7 +179,7 @@ void usb_msc_start (void) {
     DBG("Starting USB communication\n");
 
     // connect to bus
-    USBHwConnect(TRUE);
+    USBHwConnect(true);
 
     // call USB interrupt handler continuously
     while (1) {

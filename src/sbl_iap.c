@@ -190,10 +190,10 @@ int user_code_present(void)
     if( result_table[0] == CMD_SUCCESS )
     {
 
-        return (FALSE);
+        return (false);
     }
 
-    return (TRUE);
+    return (true);
 }
 
 void check_isp_entry_pin(void)
