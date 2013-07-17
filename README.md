@@ -123,7 +123,7 @@ NXP's permissive example code license:
     use without further testing or modification.
 
 A few remaining pieces were developed by Code Red, and are available under a
-more restrictive license (`main.c` and `blockdev_flash.c`):
+more restrictive license (`blockdev_flash.c`):
 
     The software is owned by Code Red Technologies and/or its suppliers, and is
     protected under applicable copyright laws.  All rights are reserved.  Any
