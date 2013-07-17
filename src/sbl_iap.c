@@ -21,6 +21,7 @@
 #include "sbl_iap.h"
 #include "sbl_config.h"
 #include "LPC17xx.h"
+#include "log.h"
 
 
 const unsigned sector_start_map[MAX_FLASH_SECTOR] = {SECTOR_0_START,             \
@@ -63,6 +64,7 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
       /* Store flash start address */
       flash_address = (unsigned *)dst;
     }
+    debug("writing to user flash address 0x%x\n", flash_address);
     for( i = 0;i<no_of_bytes;i++ )
     {
       flash_buf[(byte_ctr+i)] = *(src+i);

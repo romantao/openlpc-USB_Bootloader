@@ -33,6 +33,7 @@
 #include "sbl_iap.h"
 #include "type.h"
 #include "disk.h"
+#include "log.h"
 
 #include <string.h>
 
@@ -52,9 +53,9 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
 
     uint32_t offset = 512 * dwAddress;
     if(offset < BOOT_SECT_SIZE) {
-        // Can't write boot sector
+        debug("Disallowing write to the boot sector");
     } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
-        // modifying an entry in the root directory
+        debug("Modifying a root directory entry in RAM disk");
         for(i = 0; i < length; i++) {
             Fat_RootDir[(offset + i) - BOOT_SECT_SIZE] = pbBuf[i];
 
