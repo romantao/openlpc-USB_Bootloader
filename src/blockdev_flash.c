@@ -37,26 +37,23 @@
 
 #include <string.h>
 
+#define BLOCKSIZE        512
+
 extern bool user_flash_erased; // from main.c
 
 int BlockDevGetSize(uint32_t *pdwDriveSize) {
     *pdwDriveSize = (512 * 1024)- sector_start_map[USER_START_SECTOR];
-
     return 0;
 }
 
 int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
-    uint8_t* firmware;
-    firmware = (uint8_t*)USER_FLASH_START;
-    uint32_t length = 512;
-    uint32_t i;
-
     uint32_t offset = 512 * dwAddress;
+    // first four bytes are reserved
     if(offset < BOOT_SECT_SIZE) {
         debug("Disallowing write to the boot sector");
     } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
         debug("Modifying a root directory entry in RAM disk");
-        for(i = 0; i < length; i++) {
+        for(uint32_t i = 0; i < BLOCKSIZE; i++) {
             Fat_RootDir[(offset + i) - BOOT_SECT_SIZE] = pbBuf[i];
 
             // erasing a file, mark first byte of entry with 0xe5
@@ -71,28 +68,17 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
             }
         }
     } else {
-        write_flash((unsigned *)(firmware + (offset - (
+        write_flash((unsigned *)((uint8_t*)USER_FLASH_START + (offset - (
                         BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE))),
-                    (char *)pbBuf,length);
-        // [pbBuf casted to signed char pointer as that is what write_flash
-        // routine expects]
+                    (char *)pbBuf, BLOCKSIZE);
     }
     return 0;
 }
 
 int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
-    uint32_t offset;
-
-    unsigned int i;
+    uint32_t offset = 512 * dwAddress;
     uint8_t data;
-    uint8_t* firmware;
-    firmware = (uint8_t*)USER_FLASH_START;
-
-    uint32_t length =512;
-
-    offset = 512 * dwAddress;
-
-    for(i = 0; i<length; i++) {
+    for(unsigned int i = 0; i < BLOCKSIZE; i++) {
         if(offset < BOOT_SECT_SIZE) {
 
             switch (offset) {
@@ -122,7 +108,7 @@ int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
         } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
             data = Fat_RootDir[offset - BOOT_SECT_SIZE];
         } else {
-            data = *(firmware + (offset - (BOOT_SECT_SIZE +
+            data = *((uint8_t*)USER_FLASH_START + (offset - (BOOT_SECT_SIZE +
                             FAT_SIZE + ROOT_DIR_SIZE)));
         }
 

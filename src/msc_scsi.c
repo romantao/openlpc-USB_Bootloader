@@ -311,12 +311,16 @@ uint8_t* SCSIHandleData(uint8_t* pbCDB, uint8_t iCDBLen, uint8_t* pbData, uint32
         if (dwBufPos == 0) {
             // read new block
             dwBlockNr = dwLBA + (dwOffset / BLOCKSIZE);
-            debug("R");
             if (BlockDevRead(dwBlockNr, abBlockBuf) < 0) {
                 dwSense = READ_ERROR;
                 debug("BlockDevRead failed");
                 return NULL;
             }
+            /* debug_no_newline("R: "); */
+            /* for(int i = 0; i < BLOCKSIZE; i++) { */
+                /* debug_no_newline("0x%x ", (abBlockBuf + dwBufPos)[i]); */
+            /* } */
+            /* debug(""); */
         }
         // return pointer to data
         return abBlockBuf + dwBufPos;

@@ -17,8 +17,6 @@ void usb_msc_start (void);
  *  into the LPC1768's flash memory
  *****************************************************************************/
 void enter_usb_isp(void) {
-    uint32_t n, m , next_cluster;
-
     user_flash_erased = false;
 
     // Generate File Allocation Table to save Flash space
@@ -27,22 +25,23 @@ void enter_usb_isp(void) {
     Fat_RootDir[1]= 0xFF;
     Fat_RootDir[2]= 0xFF;
     /* Start cluster of a file is indicated by the Directory entry = 2 */
-    m = 3;
-    for(n = 3;n < NO_OF_CLUSTERS+2;n+=2) {
-        if(n == ((NO_OF_CLUSTERS+2)-1)) {
-          next_cluster = 0xFFF;
+    uint32_t m = 3;
+    uint32_t next_cluster;
+    for(uint32_t n = 3; n < NO_OF_CLUSTERS + 2; n += 2) {
+        if(n == (NO_OF_CLUSTERS + 2) - 1) {
+            next_cluster = 0xFFF;
         } else {
-          next_cluster = n + 1;
+            next_cluster = n + 1;
         }
-          Fat_RootDir[m] = (uint8_t)n & 0xFF;
-          Fat_RootDir[m+1] = (((uint8_t)next_cluster & 0xF) << 4) | ((uint8_t)(n>>8)&0xF);
-          Fat_RootDir[m+2] = (uint8_t)(next_cluster >> 4) & 0xFF;
-        m = m+3;
+        Fat_RootDir[m] = (uint8_t)n & 0xFF;
+        Fat_RootDir[m + 1] = (((uint8_t)next_cluster & 0xF) << 4) | ((uint8_t)(n>>8)&0xF);
+        Fat_RootDir[m + 2] = (uint8_t)(next_cluster >> 4) & 0xFF;
+        m += 3;
     }
 
     /* Copy root directory entries */
-    for(n = 0; n < DIR_ENTRY ; n++) {             /* Copy Initial Disk Image */
-        Fat_RootDir[(FAT_SIZE+n)] = RootDirEntry[n];  /*   from Flash to RAM     */
+    for(uint32_t n = 0; n < DIR_ENTRY; n++) {
+        Fat_RootDir[FAT_SIZE + n] = RootDirEntry[n];  /*   from Flash to RAM     */
     }
 
     /* Correct file size entry for file firmware.bin */
@@ -50,7 +49,6 @@ void enter_usb_isp(void) {
     Fat_RootDir[FAT_SIZE+61] = (uint8_t)(USER_FLASH_SIZE >> 8);
     Fat_RootDir[FAT_SIZE+62] = (uint8_t)(USER_FLASH_SIZE >> 16);
     Fat_RootDir[FAT_SIZE+63] = (uint8_t)(USER_FLASH_SIZE >> 24);
-
 
     // Start up LPCUSB mass storage system to allow user to copy
     // their application binary to the LPC1768's flash.
