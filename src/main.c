@@ -64,6 +64,7 @@ void enter_usb_isp(void) {
  *********************************/
 
 int main (void) {
+    initialize_logging();
     // Check to see if there is a user application in the LPC1768's flash memory.
     if(user_code_present()) {
         // There is an application, but need to check if user is pressing the button

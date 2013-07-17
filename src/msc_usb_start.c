@@ -33,7 +33,7 @@
 
 #include <stdint.h>
 #include "usbapi.h"
-#include "debug.h"
+#include "log.h"
 #include "msc_bot.h"
 #include "disk.h"
 
@@ -122,12 +122,12 @@ static const uint8_t abDescriptors[] = {
 **************************************************************************/
 static bool HandleClassRequest(TSetupPacket *pSetup, int *piLen, uint8_t **ppbData) {
     if(pSetup->wIndex != 0) {
-        DBG("Invalid idx %X\n", pSetup->wIndex);
+        debug("Invalid idx %X", pSetup->wIndex);
         return false;
     }
 
     if(pSetup->wValue != 0) {
-        DBG("Invalid val %X\n", pSetup->wValue);
+        debug("Invalid val %X", pSetup->wValue);
         return false;
     }
 
@@ -148,7 +148,7 @@ static bool HandleClassRequest(TSetupPacket *pSetup, int *piLen, uint8_t **ppbDa
         break;
 
     default:
-        DBG("Unhandled class\n");
+        debug("Unhandled class");
         return false;
     }
     return true;
@@ -157,7 +157,7 @@ static bool HandleClassRequest(TSetupPacket *pSetup, int *piLen, uint8_t **ppbDa
 
 void usb_msc_start (void) {
 
-    DBG("Initialising USB stack\n");
+    debug("Initialising USB stack");
 
     // initialise stack
     USBInit();
@@ -176,7 +176,7 @@ void usb_msc_start (void) {
     USBHwRegisterEPIntHandler(MSC_BULK_IN_EP, MSCBotBulkIn);
     USBHwRegisterEPIntHandler(MSC_BULK_OUT_EP, MSCBotBulkOut);
 
-    DBG("Starting USB communication\n");
+    debug("Starting USB communication");
 
     // connect to bus
     USBHwConnect(true);

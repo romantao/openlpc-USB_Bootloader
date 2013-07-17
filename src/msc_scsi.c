@@ -46,7 +46,7 @@
 #include <string.h>
 
 #include "type.h"
-#include "debug.h"
+#include "log.h"
 
 #include "blockdev.h"
 #include "msc_scsi.h"
@@ -157,7 +157,7 @@ uint8_t* SCSIHandleCmd(uint8_t* pbCDB, uint8_t iCDBLen, int *piRspLen, bool *pfD
     // check CDB length
     bGroupCode = (pCDB->bOperationCode >> 5) & 0x7;
     if (iCDBLen < aiCDBLen[bGroupCode]) {
-        DBG("Invalid CBD len (expected %d)!\n", aiCDBLen[bGroupCode]);
+        debug("Invalid CBD len (expected %d)!", aiCDBLen[bGroupCode]);
         return NULL;
     }
 
@@ -165,32 +165,32 @@ uint8_t* SCSIHandleCmd(uint8_t* pbCDB, uint8_t iCDBLen, int *piRspLen, bool *pfD
 
     // test unit ready (6)
     case SCSI_CMD_TEST_UNIT_READY:
-        DBG("TEST UNIT READY\n");
+        debug("TEST UNIT READY");
         *piRspLen = 0;
         break;
 
     // request sense (6)
     case SCSI_CMD_REQUEST_SENSE:
-        DBG("REQUEST SENSE (%06X)\n", dwSense);
+        debug("REQUEST SENSE (%06X)", dwSense);
         // check params
         *piRspLen = MIN(18, pCDB->bLength);
         break;
 
     case SCSI_CMD_FORMAT_UNIT:
-        DBG("FORMAT UNIT %02X\n", pbCDB[1]);
+        debug("FORMAT UNIT %02X", pbCDB[1]);
         *piRspLen = 0;
         break;
 
     // inquiry (6)
     case SCSI_CMD_INQUIRY:
-        DBG("INQUIRY\n");
+        debug("INQUIRY");
         // see SPC3r23, 4.3.4.6
         *piRspLen = MIN(36, pCDB->bLength);
         break;
 
     // read capacity (10)
     case SCSI_CMD_READ_CAPACITY_10:
-        DBG("READ CAPACITY\n");
+        debug("READ CAPACITY");
         *piRspLen = 8;
         break;
 
@@ -198,7 +198,7 @@ uint8_t* SCSIHandleCmd(uint8_t* pbCDB, uint8_t iCDBLen, int *piRspLen, bool *pfD
     case SCSI_CMD_READ_10:
         dwLBA = (pbCDB[2] << 24) | (pbCDB[3] << 16) | (pbCDB[4] << 8) | (pbCDB[5]);
         dwLen = (pbCDB[7] << 8) | pbCDB[8];
-        DBG("READ10, LBA=%d, len=%d\n", dwLBA, dwLen);
+        debug("READ10, LBA=%d, len=%d", dwLBA, dwLen);
         *piRspLen = dwLen * BLOCKSIZE;
         break;
 
@@ -206,16 +206,16 @@ uint8_t* SCSIHandleCmd(uint8_t* pbCDB, uint8_t iCDBLen, int *piRspLen, bool *pfD
     case SCSI_CMD_WRITE_10:
         dwLBA = (pbCDB[2] << 24) | (pbCDB[3] << 16) | (pbCDB[4] << 8) | (pbCDB[5]);
         dwLen = (pbCDB[7] << 8) | pbCDB[8];
-        DBG("WRITE10, LBA=%d, len=%d\n", dwLBA, dwLen);
+        debug("WRITE10, LBA=%d, len=%d", dwLBA, dwLen);
         *piRspLen = dwLen * BLOCKSIZE;
         *pfDevIn = false;
         break;
 
     case SCSI_CMD_VERIFY_10:
-        DBG("VERIFY10\n");
+        debug("VERIFY10");
         if ((pbCDB[1] & (1 << 1)) != 0) {
             // we don't support BYTCHK
-            DBG("BYTCHK not supported\n");
+            debug("BYTCHK not supported");
             return NULL;
         }
         *piRspLen = 0;
@@ -227,11 +227,11 @@ uint8_t* SCSIHandleCmd(uint8_t* pbCDB, uint8_t iCDBLen, int *piRspLen, bool *pfD
         break;
 
     default:
-        DBG("Unhandled SCSI: ");
+        debug("Unhandled SCSI: ");
         for (i = 0; i < iCDBLen; i++) {
-            DBG(" %02X", pbCDB[i]);
+            debug(" %02X", pbCDB[i]);
         }
-        DBG("\n");
+        debug("");
         // unsupported command
         dwSense = INVALID_CMD_OPCODE;
         *piRspLen = 0;
@@ -311,10 +311,10 @@ uint8_t* SCSIHandleData(uint8_t* pbCDB, uint8_t iCDBLen, uint8_t* pbData, uint32
         if (dwBufPos == 0) {
             // read new block
             dwBlockNr = dwLBA + (dwOffset / BLOCKSIZE);
-            DBG("R");
+            debug("R");
             if (BlockDevRead(dwBlockNr, abBlockBuf) < 0) {
                 dwSense = READ_ERROR;
-                DBG("BlockDevRead failed\n");
+                debug("BlockDevRead failed");
                 return NULL;
             }
         }
@@ -330,11 +330,11 @@ uint8_t* SCSIHandleData(uint8_t* pbCDB, uint8_t iCDBLen, uint8_t* pbData, uint32
         if (dwBufPos == 0) {
             // write new block
             dwBlockNr = dwLBA + (dwOffset / BLOCKSIZE);
-            DBG("W");
+            debug("W");
 
             if (BlockDevWrite(dwBlockNr, abBlockBuf) < 0) {
                 dwSense = WRITE_ERROR;
-                DBG("BlockDevWrite failed\n");
+                debug("BlockDevWrite failed");
                 return NULL;
             }
         }

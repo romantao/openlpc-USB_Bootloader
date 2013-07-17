@@ -19,6 +19,7 @@ LINKER_SCRIPT = LPC1768.ld
 
 LOCAL_C_SRCS = $(CMSIS_PATH)/src/core_cm3.c $(CMSIS_PATH)/src/system_LPC17xx.c \
 			   $(wildcard $(CMSIS_PATH)/source/*.c) $(wildcard *.c) \
+				$(wildcard $(DRIVER_PATH)/src/*.c) \
 			   $(wildcard lpcusb/target/*.c) \
 			   lpcusb/target/examples/msc_bot.c
 OBJECTS = $(LOCAL_C_SRCS:.c=.o)
