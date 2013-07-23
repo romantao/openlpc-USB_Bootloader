@@ -23,7 +23,6 @@
 #include "LPC17xx.h"
 #include "log.h"
 
-
 const unsigned sector_start_map[MAX_FLASH_SECTOR] = {SECTOR_0_START,             \
 SECTOR_1_START,SECTOR_2_START,SECTOR_3_START,SECTOR_4_START,SECTOR_5_START,      \
 SECTOR_6_START,SECTOR_7_START,SECTOR_8_START,SECTOR_9_START,SECTOR_10_START,     \
@@ -45,7 +44,7 @@ unsigned result_table[5];
 
 char flash_buf[FLASH_BUF_SIZE];
 
-unsigned * flash_address = 0;
+unsigned *flash_address = 0;
 unsigned byte_ctr = 0;
 
 unsigned sector_erased_map[MAX_FLASH_SECTOR];
@@ -183,13 +182,11 @@ void execute_user_code(void)
 }
 
 
-int user_code_present(void)
-{
-
-       param_table[0] = BLANK_CHECK_SECTOR;
-        param_table[1] = USER_START_SECTOR;
-       param_table[2] = USER_START_SECTOR;
-       iap_entry(param_table,result_table);
+int user_code_present(void) {
+    param_table[0] = BLANK_CHECK_SECTOR;
+    param_table[1] = USER_START_SECTOR;
+    param_table[2] = USER_START_SECTOR;
+    iap_entry(param_table,result_table);
     if( result_table[0] == CMD_SUCCESS )
     {
 
@@ -220,10 +217,12 @@ void check_isp_entry_pin(void)
 
 void erase_user_flash(void)
 {
-    prepare_sector(USER_START_SECTOR,MAX_USER_SECTOR,SystemCoreClock/1000);
-    erase_sector(USER_START_SECTOR,MAX_USER_SECTOR,SystemCoreClock/1000);
+    debug("Erasing user flash");
+    prepare_sector(USER_START_SECTOR, MAX_USER_SECTOR, SystemCoreClock/1000);
+    erase_sector(USER_START_SECTOR, MAX_USER_SECTOR, SystemCoreClock/1000);
     if(result_table[0] != CMD_SUCCESS)
     {
+      debug("Unable to erase user flash - can't recover");
       while(1); /* No way to recover. Just let Windows report a write failure */
     }
 }
