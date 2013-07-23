@@ -48,6 +48,7 @@ char flash_buf[FLASH_BUF_SIZE];
 unsigned * flash_address = 0;
 unsigned byte_ctr = 0;
 
+unsigned sector_erased_map[MAX_FLASH_SECTOR];
 
 void write_data(unsigned cclk,unsigned flash_address,unsigned * flash_data_buf, unsigned count);
 void find_erase_prepare_sector(unsigned cclk, unsigned flash_address);
@@ -64,7 +65,6 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
       /* Store flash start address */
       flash_address = (unsigned *)dst;
     }
-    debug("writing to user flash address 0x%x\n", flash_address);
     for( i = 0;i<no_of_bytes;i++ )
     {
       flash_buf[(byte_ctr+i)] = *(src+i);
@@ -73,39 +73,40 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
 
     if( byte_ctr == FLASH_BUF_SIZE)
     {
+      debug("writing to user flash address 0x%x", flash_address);
       /* We have accumulated enough bytes to trigger a flash write */
       find_erase_prepare_sector(SystemCoreClock/1000, (unsigned)flash_address);
       if(result_table[0] != CMD_SUCCESS)
       {
+        debug("Couldn't prepare flash sector - can't recover");
         while(1); /* No way to recover. Just let Windows report a write failure */
       }
       write_data(SystemCoreClock/1000,(unsigned)flash_address,(unsigned *)flash_buf,FLASH_BUF_SIZE);
       if(result_table[0] != CMD_SUCCESS)
       {
+        debug("Flash write failed (code %d) - can't recover", result_table[0]);
         while(1); /* No way to recover. Just let Windows report a write failure */
       }
       /* Reset byte counter and flash address */
       byte_ctr = 0;
       flash_address = 0;
+    } else {
+      debug("buffered data to write until we have a full sector's worth");
     }
     return(CMD_SUCCESS);
 }
 
-void find_erase_prepare_sector(unsigned cclk, unsigned flash_address)
-{
-    unsigned i;
-
+void find_erase_prepare_sector(unsigned cclk, unsigned flash_address) {
     __disable_irq();
-    for(i=USER_START_SECTOR;i<=MAX_USER_SECTOR;i++)
-    {
-        if(flash_address < sector_end_map[i])
-        {
-            if( flash_address == sector_start_map[i])
-            {
-                prepare_sector(i,i,cclk);
-                erase_sector(i,i,cclk);
+    for(unsigned int i = USER_START_SECTOR; i <= MAX_USER_SECTOR; i++) {
+        if(flash_address < sector_end_map[i]) {
+            if(!sector_erased_map[i]) {
+                prepare_sector(i, i,cclk);
+                erase_sector(i, i, cclk);
+                debug("Prepared and erased sector %d", i);
+                sector_erased_map[i] = true;
             }
-            prepare_sector(i,i,cclk);
+            prepare_sector(i, i, cclk);
             break;
         }
     }
