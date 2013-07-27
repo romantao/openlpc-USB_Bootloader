@@ -33,10 +33,55 @@ const unsigned char BootSect[] = {
 
 /* FAT12 Root directory entry constants */
 const unsigned char RootDirEntry[DIR_ENTRY] = {
- 'L', 'P', 'C', '1', '7', '5', '9',' ', ' ', ' ', ' ', 0x28,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
- 'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', 'B', 'I', 'N',0x20,0x18,0xbc,0x41,0x97,
-0x37,0x38,0x37,0x38,0x00,0x00,0x3d,0x6e,0x2b,0x38,0x02,0x00,0x00,0xD0,0x07,0x00,
+    // 8.3 file name
+    'L', 'P', 'C', '1', '7', '5', '9',' ', ' ', ' ', ' ',
+    // file attributes
+    0x28,
+    // reserved for Windows NT
+    0x00,
+    // creation time in tenths of a second
+    0x00,
+    // time of file creation
+    0x00,0x00,
+    // date of file creation
+    0x00,0x00,
+    // last accessed date
+    0x00,0x00,
+    // high 16 bits of the first cluster number (always 0 for FAT12)
+    0x00,0x00,
+    // last modification time
+    0x00,0x00,
+    // last modification date
+    0x00,0x00,
+    // low 16 bits of the cluster number
+    0x00,0x00,
+    // file size in bytes
+    0x00,0x00,0x00,0x00,
+
+    // 8.3 file name
+    'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', 'B', 'I', 'N',
+    // file attributes
+    0x20,
+    // reserved for Windows NT
+    0x18,
+    // creation time in tenths of a second
+    0xbc,
+    // time of file creation
+    0x41,0x97,
+    // date of file creation
+    0x37,0x38,
+    // last accessed date
+    0x37,0x38,
+    // high 16 bits of the first cluster number (always 0 for FAT12)
+    0x00,0x00,
+    // last modification time
+    0x3d,0x6e,
+    // last modification date
+    0x2b,0x38,
+    // low 16 bits of the cluster number
+    0x02,0x00,
+    // file size in bytes
+    0x00,0xD0,0x07,0x00,
  };
 
 /* RAM to store the file allocation table */

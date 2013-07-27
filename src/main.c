@@ -6,7 +6,7 @@
 
 #include "LPC17xx.h"
 
-bool  user_flash_erased;
+bool user_flash_erased;
 
 // USB mass storage driver - in msc_usb_start.c
 void usb_msc_start (void);
