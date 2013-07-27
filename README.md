@@ -109,7 +109,7 @@ The LPCUSB library is made availble under the BSD license. It is linked to from
 this project as a Git submodule.
 
 The core of the bootloader is originally developed by NXP, and is licensed under
-NXP's permissive example code license:
+NXP's odd example code license:
 
     Software that is described herein is for illustrative purposes only
     which provides customers with programming information regarding the
@@ -121,6 +121,11 @@ NXP's permissive example code license:
     notification. NXP Semiconductors also make no representation or
     warranty that such application will be suitable for the specified
     use without further testing or modification.
+
+NXP claims no liability, but "conveys no license" which makes it not really open
+source. Representatives of NXP have publicly stated that they are OK with the
+examples being used and redistributed, so we use it here in good faith
+([source](http://knowledgebase.nxp.com/showthread.php?t=2514&langid=2)).
 
 A few remaining pieces were developed by Code Red, and are available under a
 more restrictive license (`blockdev_flash.c`):
@@ -137,3 +142,8 @@ more restrictive license (`blockdev_flash.c`):
     USE OF THIS SOFTWARE FOR COMMERCIAL DEVELOPMENT AND/OR EDUCATION IS SUBJECT
     TO A CURRENT END USER LICENSE AGREEMENT (COMMERCIAL OR EDUCATIONAL) WITH
     CODE RED TECHNOLOGIES LTD.
+
+Code Red has taken a public position that they are fine with redistributing the
+code and including it in products, as long as the copyright message remains
+intact so we use it here in good faith
+([source](http://knowledgebase.nxp.trimm.net/showthread.php?p=12830).
