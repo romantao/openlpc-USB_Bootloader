@@ -11,28 +11,16 @@
 // use without further testing or modification.
 //-----------------------------------------------------------------------------
 
-/***********************************************************************
- * Code Red Technologies - Minor modifications to original NXP AN10866
- * example code for use in RDB1768 secondary USB bootloader based on
- * LPCUSB USB stack.
- *
- * disk.h - header file related to disk/fat/flash for bootloader using
- *          LPCUSB stack mass storage to access LPC1768 flash memory
- *
- * *********************************************************************/
-
-
 #ifndef __DISK_H__
 #define __DISK_H__
 
 #include "type.h"
 
-/* Mass Storage 'Disk' Memory Layout */
 #define MSC_MemorySize  ( BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE + USER_FLASH_SIZE )
 #define MSC_BlockSize   512
 #define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 
-#define BOOT_SECT_SIZE     MSC_BlockSize
+#define BOOT_SECT_SIZE  MSC_BlockSize
 #define ROOT_DIR_SIZE   (MSC_BlockSize * 1)
 #define FAT_SIZE        (MSC_BlockSize * 2)
 
@@ -41,8 +29,8 @@
 
 #define DIR_ENTRY 64
 
-extern unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];  /* RAM to store the file allocation table */
-extern const unsigned char RootDirEntry[DIR_ENTRY];                       /* Root directory entry constants */
+extern unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
+extern const unsigned char RootDirEntry[DIR_ENTRY];
 extern const unsigned char BootSect[];
 
 #endif  /* __DISK_H__ */

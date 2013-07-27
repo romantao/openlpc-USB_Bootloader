@@ -11,18 +11,6 @@
 // use without further testing or modification.
 //-----------------------------------------------------------------------------
 
-/***********************************************************************
- * Code Red Technologies - Minor modifications to original NXP AN10866
- * example code for use in RDB1768 secondary USB bootloader based on
- * LPCUSB USB stack.
- *
- * diskimage.c - definition of boot sector and root directory for FAT12
- *               tables used for accessing LPC1768 flash by RDB1768 USB
- *               bootloader.
- *
- * *********************************************************************/
-
-
 #include "disk.h"
 
 /* FAT12 Boot sector constants */
@@ -85,4 +73,4 @@ const unsigned char RootDirEntry[DIR_ENTRY] = {
  };
 
 /* RAM to store the file allocation table */
-unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
+unsigned char Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
