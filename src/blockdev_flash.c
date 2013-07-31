@@ -54,14 +54,22 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
     // first four bytes are reserved
     if(offset < BOOT_SECT_SIZE) {
         debug("Disallowing write to the boot sector");
-    } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
-        debug("Modifying a root directory entry in RAM disk");
+    } else if(offset < BOOT_SECT_SIZE + FAT_SIZE) {
+        debug("Modifying the FAT itself");
         for(uint32_t i = 0; i < BLOCKSIZE; i++) {
-            Fat_RootDir[(offset + i) - BOOT_SECT_SIZE] = pbBuf[i];
+            FAT[(offset + i) - BOOT_SECT_SIZE] = pbBuf[i];
+        }
+    } else if(offset < BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE) {
+        debug("Modifying directory entry %d", (BOOT_SECT_SIZE + FAT_SIZE +
+                    ROOT_DIR_SIZE) - offset % DIRECTORY_ENTRY_SIZE);
+
+        for(uint32_t i = 0; i < BLOCKSIZE; i++) {
+            ((uint8_t*)&DIRECTORY_ENTRIES)[(offset + i) - BOOT_SECT_SIZE -
+                    FAT_SIZE] = pbBuf[i];
 
             // erasing a file, mark first byte of entry with 0xe5
             if(pbBuf[i] == 0xe5 ) {
-                if((offset+i) == BOOT_SECT_SIZE + FAT_SIZE + 32 ) {
+                if((offset + i) == BOOT_SECT_SIZE + FAT_SIZE + 32 ) {
                     // Delete user flash when firmware.bin is erased
                     if(user_flash_erased == false ) {
                         erase_user_flash();
@@ -129,8 +137,12 @@ int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
                     break;
             }
 
-        } else if(offset < (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
-            data = Fat_RootDir[offset - BOOT_SECT_SIZE];
+        } else if(offset < BOOT_SECT_SIZE + FAT_SIZE) {
+            data = FAT[offset - BOOT_SECT_SIZE];
+        } else if(offset < BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE) {
+            data = ((uint8_t*)&DIRECTORY_ENTRIES)[
+                    offset - BOOT_SECT_SIZE - FAT_SIZE];
+            debug("offset 0x%x, data 0x%x", offset, data);
         } else {
             data = *((uint8_t*)USER_FLASH_START + (offset - (BOOT_SECT_SIZE +
                             FAT_SIZE + ROOT_DIR_SIZE)));

@@ -9,7 +9,7 @@
 bool user_flash_erased;
 
 // USB mass storage driver - in msc_usb_start.c
-void usb_msc_start (void);
+void usb_msc_start(void);
 
 /*****************************************************************************
  * enter_usb_isp() is the routine called if the bootloader determines that the
@@ -21,9 +21,9 @@ void enter_usb_isp(void) {
 
     // Generate File Allocation Table to save Flash space
     // First Two FAT entries are reserved
-    Fat_RootDir[0]= 0xF8;
-    Fat_RootDir[1]= 0xFF;
-    Fat_RootDir[2]= 0xFF;
+    FAT[0] = 0xF8;
+    FAT[1] = 0xFF;
+    FAT[2] = 0xFF;
     /* Start cluster of a file is indicated by the Directory entry = 2 */
     uint32_t m = 3;
     uint32_t next_cluster;
@@ -33,22 +33,16 @@ void enter_usb_isp(void) {
         } else {
             next_cluster = n + 1;
         }
-        Fat_RootDir[m] = (uint8_t)n & 0xFF;
-        Fat_RootDir[m + 1] = (((uint8_t)next_cluster & 0xF) << 4) | ((uint8_t)(n>>8)&0xF);
-        Fat_RootDir[m + 2] = (uint8_t)(next_cluster >> 4) & 0xFF;
+        FAT[m] = (uint8_t)n & 0xFF;
+        FAT[m + 1] = (((uint8_t)next_cluster & 0xF) << 4) | ((uint8_t)(n>>8)&0xF);
+        FAT[m + 2] = (uint8_t)(next_cluster >> 4) & 0xFF;
         m += 3;
     }
 
-    /* Copy root directory entries */
-    for(uint32_t n = 0; n < DIR_ENTRY; n++) {
-        Fat_RootDir[FAT_SIZE + n] = RootDirEntry[n];  /*   from Flash to RAM     */
-    }
-
-    /* Correct file size entry for file firmware.bin */
-    Fat_RootDir[FAT_SIZE+60] = (uint8_t)(USER_FLASH_SIZE & 0xFF);
-    Fat_RootDir[FAT_SIZE+61] = (uint8_t)(USER_FLASH_SIZE >> 8);
-    Fat_RootDir[FAT_SIZE+62] = (uint8_t)(USER_FLASH_SIZE >> 16);
-    Fat_RootDir[FAT_SIZE+63] = (uint8_t)(USER_FLASH_SIZE >> 24);
+    /* Correct file size entry for file firmware.bin since user flash size isn't
+     * know until runtime.
+     */
+    DIRECTORY_ENTRIES[1].filesize = USER_FLASH_SIZE;
 
     // Start up LPCUSB mass storage system to allow user to copy
     // their application binary to the LPC1768's flash.

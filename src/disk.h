@@ -21,14 +21,16 @@
 #define MSC_BlockSize   512
 #define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 
+#define ROOT_DIR_ENTRIES 2
+#define FAT_ENTRIES 1
 #define BOOT_SECT_SIZE  MSC_BlockSize
-#define ROOT_DIR_SIZE   (MSC_BlockSize * 1)
-#define FAT_SIZE        (MSC_BlockSize * 2)
+#define ROOT_DIR_SIZE   (MSC_BlockSize * ROOT_DIR_ENTRIES)
+#define FAT_SIZE        (MSC_BlockSize * FAT_ENTRIES)
 
 #define BLOCKS_PER_CLUSTER  64
 #define NO_OF_CLUSTERS     (MSC_BlockCount/BLOCKS_PER_CLUSTER)
 
-#define DIR_ENTRY 64
+#define DIRECTORY_ENTRY_SIZE 32
 
 typedef struct FatBootSector {
     uint8_t       bootjmp[3];
@@ -51,11 +53,27 @@ typedef struct FatBootSector {
 
 } __attribute__((packed)) FatBootSector_t;
 
+typedef struct FatDirectoryEntry {
+    uint8_t filename[11];
+    uint8_t attributes;
+    uint8_t reserved;
+    uint8_t creation_time_ms;
+    uint16_t creation_time;
+    uint16_t creation_date;
+    uint16_t accessed_date;
+    uint16_t first_cluster_high_16;
+    uint16_t modification_time;
+    uint16_t modification_date;
+    uint16_t first_cluster_low_16;
+    uint32_t filesize;
+}  __attribute__((packed)) FatDirectoryEntry_t;
 
+/* RAM to store the file allocation table */
+extern uint8_t FAT[FAT_SIZE];
 
+/* FAT12 Root directory entries */
+extern FatDirectoryEntry_t DIRECTORY_ENTRIES[ROOT_DIR_ENTRIES];
 
-extern uint8_t  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
-extern const uint8_t RootDirEntry[DIR_ENTRY];
 extern const FatBootSector_t BOOT_SECTOR;
 
 #endif  /* __DISK_H__ */
