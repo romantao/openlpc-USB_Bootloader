@@ -85,10 +85,27 @@ Eject and reset the microcontroller.
 
 ### Linux
 
-Mounting the USB and copying over the firmware [does not
-work](http://dangerousprototypes.com/docs/LPC_ARM_quick_start#Bootloaders) from
-Linux. You need to use `mdel` and `mcopy` from the `mtools` package.
+There are two good options for flashing user firmware from Linux.
 
+**USB Drive Method**
+
+To flash, hold down the bootloader entry button while plugging into USB or
+hitting the reset button. A USB drive should appear in your file manager (or you
+can mount it manually with the `vfat` filesystem type).
+
+* Delete the firmware.bin file
+* Copy your new firmware.bin over (the filename doesn't matter)
+* Unmount and reset the microcontroller
+
+(These instructions are the same as Windows.)
+
+Mounting the USB disk drive, deleting firmware.bin and copying over the new file
+works fine now (after some bug fixes in the [original version of this
+bootloader](http://dangerousprototypes.com/docs/LPC_ARM_quick_start#Bootloaders).
+
+**mtools Method**
+
+Alternatively, you can use `mdel` and `mcopy` tools from the `mtools` package.
 To flash, hold down the bootloader entry button while powering on. Then:
 
     $ sudo mdel -i /dev/sdc ::/firmware.bin
