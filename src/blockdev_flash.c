@@ -109,11 +109,9 @@ int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
 
             switch (offset) {
                 case 19:
-
                     data = (uint8_t)(MSC_BlockCount & 0xFF);
                     break;
                 case 20:
-
                     data = (uint8_t)((MSC_BlockCount >> 8) & 0xFF);
                     break;
                 case 510:
@@ -126,7 +124,7 @@ int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
                     if(offset > 29 ) {
                         data = 0x0;
                     } else {
-                        data = BootSect[offset];
+                        data = ((char*)&BOOT_SECTOR)[offset];
                     }
                     break;
             }
