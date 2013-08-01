@@ -60,7 +60,43 @@ FatDirectoryEntry_t DIRECTORY_ENTRIES[ROOT_DIR_ENTRIES] = {
         // low 16 bits of the cluster number
         2,
         // file size in bytes
-        0x7D000,
+        0x7D000
+    },
+    // long file name entry for .Trashes to get the capitalization right
+    {
+        {0x41, 0x2e, 0, 0x54, 0, 0x72, 0, 0x61, 0, 0x73, 0},
+        0x0f,
+        0,
+        0x25, // TODO in main.c actually calculate the correct checksum
+        0x68,
+        0x65,
+        0x73
+    },
+    {
+        // 8.3 file name
+        {'.', 'T', 'r', 'a', 's', 'h', 'e', 's'},
+        // file attributes
+        0x20,
+        // reserved for Windows NT
+        0x18,
+        // creation time in tenths of a second
+        0xbc,
+        // time of file creation
+        0x9741,
+        // date of file creation
+        0x3837,
+        // last accessed date
+        0x3837,
+        // high 16 bits of the first cluster number (always 0 for FAT12)
+        0,
+        // last modification time
+        0x6e3d,
+        // last modification date
+        0x382b,
+        // low 16 bits of the cluster number
+        0,
+        // file size in bytes
+        0
     }
  };
 

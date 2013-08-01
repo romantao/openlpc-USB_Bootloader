@@ -22,11 +22,10 @@
 #define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 
 #define MAX_ROOT_DIR_ENTRIES 16
-#define ROOT_DIR_ENTRIES 2
-#define FAT_ENTRIES 2
+#define ROOT_DIR_ENTRIES 4
 #define BOOT_SECT_SIZE  MSC_BlockSize
 #define ROOT_DIR_SIZE   MSC_BlockSize
-#define FAT_SIZE        (MSC_BlockSize * FAT_ENTRIES)
+#define FAT_SIZE        (MSC_BlockSize * 2)
 
 #define BLOCKS_PER_CLUSTER  64
 #define NO_OF_CLUSTERS     (MSC_BlockCount/BLOCKS_PER_CLUSTER)

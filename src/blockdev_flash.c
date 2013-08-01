@@ -69,9 +69,15 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
 
             // erasing a file, mark first byte of entry with 0xe5
             if(pbBuf[i] == 0xe5 ) {
-                if((offset + i) == BOOT_SECT_SIZE + FAT_SIZE + 32 ) {
-                    // Delete user flash when firmware.bin is erased
-                    if(user_flash_erased == false ) {
+                for(int dir_entry_index = 0; dir_entry_index <
+                        MAX_ROOT_DIR_ENTRIES; dir_entry_index++) {
+                    FatDirectoryEntry_t* directory_entry = &DIRECTORY_ENTRIES[i];
+
+                    if(!strncmp(directory_entry->filename, "FIRMWARE", 8)
+                            && (offset + i - BOOT_SECT_SIZE - FAT_SIZE) %
+                                DIRECTORY_ENTRY_SIZE == dir_entry_index
+                            && !user_flash_erased) {
+                        // Delete user flash when firmware.bin is erased
                         erase_user_flash();
                         user_flash_erased = true;
                     }
@@ -81,10 +87,14 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
 
         for(int i = 0; i < MAX_ROOT_DIR_ENTRIES; i++) {
             FatDirectoryEntry_t* directory_entry = &DIRECTORY_ENTRIES[i];
-            if(directory_entry->filename[0] == NULL || directory_entry->filename[0] == 0xeb) {
+            if(directory_entry->filename[0] == NULL || directory_entry->filename[0] == 0xe5) {
                 continue;
             } else if(directory_entry->attributes == 0xf) {
-                debug("Found a VFAT long file name entry...skipping...");
+                debug("Found a VFAT long file name entry...");
+                for(int j = 0; j < DIRECTORY_ENTRY_SIZE; j++) {
+                    debug_no_newline("%02x ", ((uint8_t*)directory_entry)[j]);
+                }
+                debug("");
                 continue;
             }
             debug("filename: %s, attributes: 0x%x, first cluster: %d, size: %d",
