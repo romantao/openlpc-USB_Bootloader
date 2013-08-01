@@ -80,6 +80,13 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
                 user_flash_erased = true;
             }
 
+            if(directory_entry->first_cluster_low_16 == 3) {
+                // TODO explain this
+                debug("Fudging the first cluster for %s",
+                        directory_entry->filename)
+                directory_entry->first_cluster_low_16 = 2;
+            }
+
             if(directory_entry->filename[0] == NULL || directory_entry->filename[0] == 0xe5) {
                 continue;
             } else if(directory_entry->attributes == 0xf) {
