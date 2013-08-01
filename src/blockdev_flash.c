@@ -131,6 +131,7 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
                 debug("Detecting a firmware write not starting from first "
                         "cluster - adjusting offset");
                 memset(block_written_map, 0, 1024);
+                reset_sector_erasure_status();
             }
         }
 

@@ -26,6 +26,7 @@ int user_code_present(void);
 void erase_user_flash(void);
 void check_isp_entry_pin(void);
 void erase_user_flash(void);
+void reset_sector_erasure_status();
 
 typedef enum
 {

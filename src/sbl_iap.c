@@ -55,6 +55,13 @@ void erase_sector(unsigned start_sector,unsigned end_sector,unsigned cclk);
 void prepare_sector(unsigned start_sector,unsigned end_sector,unsigned cclk);
 void iap_entry(unsigned param_tab[],unsigned result_tab[]);
 
+void reset_sector_erasure_status() {
+    debug("Clearing erasure status of all sectors to allow rewriting");
+    for(int i = 0; i < MAX_FLASH_SECTOR; i++) {
+        sector_erased_map[i] = false;
+    }
+}
+
 unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
 {
     if (flash_address == 0) {
