@@ -66,27 +66,20 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
         for(uint32_t i = 0; i < BLOCKSIZE; i++) {
             ((uint8_t*)&DIRECTORY_ENTRIES)[(offset + i) - BOOT_SECT_SIZE -
                     FAT_SIZE] = pbBuf[i];
-
-            // erasing a file, mark first byte of entry with 0xe5
-            if(pbBuf[i] == 0xe5 ) {
-                for(int dir_entry_index = 0; dir_entry_index <
-                        MAX_ROOT_DIR_ENTRIES; dir_entry_index++) {
-                    FatDirectoryEntry_t* directory_entry = &DIRECTORY_ENTRIES[i];
-
-                    if(!strncmp(directory_entry->filename, "FIRMWARE", 8)
-                            && (offset + i - BOOT_SECT_SIZE - FAT_SIZE) %
-                                DIRECTORY_ENTRY_SIZE == dir_entry_index
-                            && !user_flash_erased) {
-                        // Delete user flash when firmware.bin is erased
-                        erase_user_flash();
-                        user_flash_erased = true;
-                    }
-                }
-            }
         }
 
         for(int i = 0; i < MAX_ROOT_DIR_ENTRIES; i++) {
             FatDirectoryEntry_t* directory_entry = &DIRECTORY_ENTRIES[i];
+
+            // erasing a file, mark first byte of entry with 0xe5
+            if(directory_entry->filename[0] == 0xe5 &&
+                        !strncmp(&(directory_entry->filename[1]), "IRMWARE", 7) &&
+                        !user_flash_erased) {
+                // Delete user flash when firmware.bin is erased
+                erase_user_flash();
+                user_flash_erased = true;
+            }
+
             if(directory_entry->filename[0] == NULL || directory_entry->filename[0] == 0xe5) {
                 continue;
             } else if(directory_entry->attributes == 0xf) {
