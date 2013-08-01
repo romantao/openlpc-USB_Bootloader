@@ -15,6 +15,11 @@ microcontroller. The lineage of this bootloader:
   LPC17xx, and re-used as many example files from the LPCUSB project directly.
 * Chris also replaced the startup files with a Git submodule pointer to the ARM
   CDL project.
+* Chris fixed an bug with non-sequntial writes that would break large-ish
+  firmware writes.
+* Chris added workarounds to allow flashing from all platforms from the CLI or a
+  file browser (it's not exactly pretty, but it works - comments inline about
+  the specific workarounds).
 
 ## Installing the Bootloader
 
@@ -69,12 +74,16 @@ hitting the reset button. A USB drive should appear.
 
 ### Mac OS X
 
-There is an [issue](https://github.com/openxc/openlpc-USB_Bootloader/issues/6)
-with writing the firmware using Finder right now, so instead you must use the
-command line.
-
 To flash, hold down the bootloader entry button while plugging into USB or
 hitting the reset button. A USB drive should appear.
+
+**Using Finder**
+
+* Delete the firmware.bin file
+* Copy your new firmware.bin over (the filename doesn't matter)
+* Eject and reset the microcontroller
+
+**Command Line**
 
 Copy your new firmware.bin over the top of the existing firmware.bin from the
 command line:
@@ -85,10 +94,27 @@ Eject and reset the microcontroller.
 
 ### Linux
 
-Mounting the USB and copying over the firmware [does not
-work](http://dangerousprototypes.com/docs/LPC_ARM_quick_start#Bootloaders) from
-Linux. You need to use `mdel` and `mcopy` from the `mtools` package.
+There are two good options for flashing user firmware from Linux.
 
+**USB Drive Method**
+
+To flash, hold down the bootloader entry button while plugging into USB or
+hitting the reset button. A USB drive should appear in your file manager (or you
+can mount it manually with the `vfat` filesystem type).
+
+* Delete the firmware.bin file
+* Copy your new firmware.bin over (the filename doesn't matter)
+* Unmount and reset the microcontroller
+
+(These instructions are the same as Windows.)
+
+Mounting the USB disk drive, deleting firmware.bin and copying over the new file
+works fine now (after some bug fixes in the [original version of this
+bootloader](http://dangerousprototypes.com/docs/LPC_ARM_quick_start#Bootloaders).
+
+**mtools Method**
+
+Alternatively, you can use `mdel` and `mcopy` tools from the `mtools` package.
 To flash, hold down the bootloader entry button while powering on. Then:
 
     $ sudo mdel -i /dev/sdc ::/firmware.bin
@@ -109,7 +135,7 @@ The LPCUSB library is made availble under the BSD license. It is linked to from
 this project as a Git submodule.
 
 The core of the bootloader is originally developed by NXP, and is licensed under
-NXP's permissive example code license:
+NXP's odd example code license:
 
     Software that is described herein is for illustrative purposes only
     which provides customers with programming information regarding the
@@ -122,8 +148,13 @@ NXP's permissive example code license:
     warranty that such application will be suitable for the specified
     use without further testing or modification.
 
+NXP claims no liability, but "conveys no license" which makes it not really open
+source. Representatives of NXP have publicly stated that they are OK with the
+examples being used and redistributed, so we use it here in good faith
+([source](http://knowledgebase.nxp.com/showthread.php?t=2514&langid=2)).
+
 A few remaining pieces were developed by Code Red, and are available under a
-more restrictive license (`main.c` and `blockdev_flash.c`):
+more restrictive license (`blockdev_flash.c`):
 
     The software is owned by Code Red Technologies and/or its suppliers, and is
     protected under applicable copyright laws.  All rights are reserved.  Any
@@ -137,3 +168,8 @@ more restrictive license (`main.c` and `blockdev_flash.c`):
     USE OF THIS SOFTWARE FOR COMMERCIAL DEVELOPMENT AND/OR EDUCATION IS SUBJECT
     TO A CURRENT END USER LICENSE AGREEMENT (COMMERCIAL OR EDUCATIONAL) WITH
     CODE RED TECHNOLOGIES LTD.
+
+Code Red has taken a public position that they are fine with redistributing the
+code and including it in products, as long as the copyright message remains
+intact so we use it here in good faith
+([source](http://knowledgebase.nxp.trimm.net/showthread.php?p=12830).

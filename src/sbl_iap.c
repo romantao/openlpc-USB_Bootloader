@@ -21,7 +21,7 @@
 #include "sbl_iap.h"
 #include "sbl_config.h"
 #include "LPC17xx.h"
-
+#include "log.h"
 
 const unsigned sector_start_map[MAX_FLASH_SECTOR] = {SECTOR_0_START,             \
 SECTOR_1_START,SECTOR_2_START,SECTOR_3_START,SECTOR_4_START,SECTOR_5_START,      \
@@ -44,9 +44,10 @@ unsigned result_table[5];
 
 char flash_buf[FLASH_BUF_SIZE];
 
-unsigned * flash_address = 0;
+unsigned *flash_address = 0;
 unsigned byte_ctr = 0;
 
+unsigned sector_erased_map[MAX_FLASH_SECTOR];
 
 void write_data(unsigned cclk,unsigned flash_address,unsigned * flash_data_buf, unsigned count);
 void find_erase_prepare_sector(unsigned cclk, unsigned flash_address);
@@ -54,56 +55,63 @@ void erase_sector(unsigned start_sector,unsigned end_sector,unsigned cclk);
 void prepare_sector(unsigned start_sector,unsigned end_sector,unsigned cclk);
 void iap_entry(unsigned param_tab[],unsigned result_tab[]);
 
+void reset_sector_erasure_status() {
+    debug("Clearing erasure status of all sectors to allow rewriting");
+    for(int i = 0; i < MAX_FLASH_SECTOR; i++) {
+        sector_erased_map[i] = false;
+    }
+}
+
 unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
 {
-  unsigned i;
-
-    if (flash_address == 0)
-    {
+    if (flash_address == 0) {
       /* Store flash start address */
       flash_address = (unsigned *)dst;
     }
-    for( i = 0;i<no_of_bytes;i++ )
-    {
+
+    for(unsigned int i = 0;i<no_of_bytes;i++ ) {
       flash_buf[(byte_ctr+i)] = *(src+i);
     }
     byte_ctr = byte_ctr + no_of_bytes;
 
-    if( byte_ctr == FLASH_BUF_SIZE)
-    {
+    if(byte_ctr == FLASH_BUF_SIZE) {
+
+      debug("writing to user flash address 0x%x", flash_address);
       /* We have accumulated enough bytes to trigger a flash write */
       find_erase_prepare_sector(SystemCoreClock/1000, (unsigned)flash_address);
       if(result_table[0] != CMD_SUCCESS)
       {
+        debug("Couldn't prepare flash sector - can't recover");
         while(1); /* No way to recover. Just let Windows report a write failure */
       }
       write_data(SystemCoreClock/1000,(unsigned)flash_address,(unsigned *)flash_buf,FLASH_BUF_SIZE);
       if(result_table[0] != CMD_SUCCESS)
       {
+        debug("Flash write failed (code %d) - can't recover", result_table[0]);
         while(1); /* No way to recover. Just let Windows report a write failure */
       }
+
+
       /* Reset byte counter and flash address */
       byte_ctr = 0;
       flash_address = 0;
+    } else {
+      debug("buffered data to write until we have a full sector's worth");
     }
     return(CMD_SUCCESS);
 }
 
-void find_erase_prepare_sector(unsigned cclk, unsigned flash_address)
-{
-    unsigned i;
-
+void find_erase_prepare_sector(unsigned cclk, unsigned flash_address) {
     __disable_irq();
-    for(i=USER_START_SECTOR;i<=MAX_USER_SECTOR;i++)
-    {
-        if(flash_address < sector_end_map[i])
-        {
-            if( flash_address == sector_start_map[i])
-            {
-                prepare_sector(i,i,cclk);
-                erase_sector(i,i,cclk);
+    for(unsigned int i = USER_START_SECTOR; i <= MAX_USER_SECTOR; i++) {
+        if(flash_address < sector_end_map[i]) {
+            if(!sector_erased_map[i]) {
+                prepare_sector(i, i,cclk);
+                erase_sector(i, i, cclk);
+                debug("Prepared and erased sector %d", i);
+                sector_erased_map[i] = true;
             }
-            prepare_sector(i,i,cclk);
+            prepare_sector(i, i, cclk);
             break;
         }
     }
@@ -120,6 +128,7 @@ void write_data(unsigned cclk,unsigned flash_address,unsigned * flash_data_buf, 
     param_table[4] = cclk;
     iap_entry(param_table,result_table);
     __enable_irq();
+
 }
 
 void erase_sector(unsigned start_sector,unsigned end_sector,unsigned cclk)
@@ -180,20 +189,18 @@ void execute_user_code(void)
 }
 
 
-int user_code_present(void)
-{
-
-       param_table[0] = BLANK_CHECK_SECTOR;
-        param_table[1] = USER_START_SECTOR;
-       param_table[2] = USER_START_SECTOR;
-       iap_entry(param_table,result_table);
+int user_code_present(void) {
+    param_table[0] = BLANK_CHECK_SECTOR;
+    param_table[1] = USER_START_SECTOR;
+    param_table[2] = USER_START_SECTOR;
+    iap_entry(param_table,result_table);
     if( result_table[0] == CMD_SUCCESS )
     {
 
-        return (FALSE);
+        return (false);
     }
 
-    return (TRUE);
+    return (true);
 }
 
 void check_isp_entry_pin(void)
@@ -217,10 +224,12 @@ void check_isp_entry_pin(void)
 
 void erase_user_flash(void)
 {
-    prepare_sector(USER_START_SECTOR,MAX_USER_SECTOR,SystemCoreClock/1000);
-    erase_sector(USER_START_SECTOR,MAX_USER_SECTOR,SystemCoreClock/1000);
+    debug("Erasing user flash");
+    prepare_sector(USER_START_SECTOR, MAX_USER_SECTOR, SystemCoreClock/1000);
+    erase_sector(USER_START_SECTOR, MAX_USER_SECTOR, SystemCoreClock/1000);
     if(result_table[0] != CMD_SUCCESS)
     {
+      debug("Unable to erase user flash - can't recover");
       while(1); /* No way to recover. Just let Windows report a write failure */
     }
 }

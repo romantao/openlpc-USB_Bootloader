@@ -9,15 +9,14 @@
 DEVICE=$1
 FIRMWARE=$2
 
-echo "Deleting existing firmware..."
-sudo mdel -i $DEVICE ::/firmware.bin
+FIRMWARE_PATH=::/firmware.bin
+
+echo "Copying new firmware..."
+sudo mcopy -o -i $DEVICE $FIRMWARE $FIRMWARE_PATH
 while [ $? != 0 ]; do
     sleep 2
 
-    echo "Re-trying delete of existing firwmare..."
-    sudo mdel -i $DEVICE ::/firmware.bin
+    echo "Re-trying copying new firwmare..."
+    sudo mcopy -o -i $DEVICE $FIRMWARE $FIRMWARE_PATH
 done
-
-echo "Copying new firmware..."
-sudo mcopy -i $DEVICE $FIRMWARE ::/firmware.bin
 echo "Done."
