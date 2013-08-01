@@ -41,8 +41,8 @@
 
 extern bool user_flash_erased; // from main.c
 
-static bool FIRST_BLOCK_WRITTEN = false;
 static int FORCE_FIRST_CLUSTER_WORKAROUND_OFFSET = 0;
+unsigned block_written_map[1024];
 
 int BlockDevGetSize(uint32_t *pdwDriveSize) {
     *pdwDriveSize = (512 * 1024)- sector_start_map[USER_START_SECTOR];
@@ -118,18 +118,45 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
         // more proper way to fix this issue would be to actually store the FAT
         // directory entires in flash somewhere, read it when the bootloader
         // starts, and jump to the correct cluster number.
-        if(!FIRST_BLOCK_WRITTEN && offset == (0x8000 +
-                    BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
-            FORCE_FIRST_CLUSTER_WORKAROUND_OFFSET = -0x8000;
-            debug("Detecting a firmware write not starting from first "
-                    "cluster - adjusting offset");
+        if(offset == (0x8000 + BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
+            bool bogus_file_up_front = false;
+            for(int i = 0; i < 9; i++) {
+                bogus_file_up_front = bogus_file_up_front || !block_written_map[i];
+                if(bogus_file_up_front) {
+                    break;
+                }
+            }
+            if(!block_written_map[0] || bogus_file_up_front) {
+                FORCE_FIRST_CLUSTER_WORKAROUND_OFFSET = -0x8000;
+                debug("Detecting a firmware write not starting from first "
+                        "cluster - adjusting offset");
+                memset(block_written_map, 0, 1024);
+            }
         }
-        offset += FORCE_FIRST_CLUSTER_WORKAROUND_OFFSET;
-        FIRST_BLOCK_WRITTEN = true;
 
-        write_flash((unsigned *)((uint8_t*)USER_FLASH_START + (offset - (
-                        BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE))),
-                    (char *)pbBuf, BLOCKSIZE);
+        offset += FORCE_FIRST_CLUSTER_WORKAROUND_OFFSET;
+
+        if(offset < BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE) {
+            debug("Attempting to write at beginning of flash after fixing "
+                    "offset, bailing!");
+            return 0;
+        }
+
+        unsigned* flash_address = (unsigned *)((uint8_t*)USER_FLASH_START +
+                (offset - (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)));
+        unsigned int block_array_index = ((unsigned)flash_address -
+                0x10000) / BLOCKSIZE;
+        /* debug("flash address 0x%02x", flash_address); */
+        /* debug("block array index: %d", block_array_index); */
+        if(block_array_index > 1024) {
+            /* debug("requested block is corrupted, bailing on write request"); */
+        } else if(block_written_map[block_array_index]) {
+            debug("Address 0x%02x already written, blocking second write",
+                    (unsigned)flash_address);
+        } else {
+            write_flash(flash_address, (char *)pbBuf, BLOCKSIZE);
+            block_written_map[block_array_index] = true;
+        }
     }
     return 0;
 }

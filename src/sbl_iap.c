@@ -23,8 +23,6 @@
 #include "LPC17xx.h"
 #include "log.h"
 
-#define BLOCKSIZE        512
-
 const unsigned sector_start_map[MAX_FLASH_SECTOR] = {SECTOR_0_START,             \
 SECTOR_1_START,SECTOR_2_START,SECTOR_3_START,SECTOR_4_START,SECTOR_5_START,      \
 SECTOR_6_START,SECTOR_7_START,SECTOR_8_START,SECTOR_9_START,SECTOR_10_START,     \
@@ -50,7 +48,6 @@ unsigned *flash_address = 0;
 unsigned byte_ctr = 0;
 
 unsigned sector_erased_map[MAX_FLASH_SECTOR];
-unsigned block_written_map[1024];
 
 void write_data(unsigned cclk,unsigned flash_address,unsigned * flash_data_buf, unsigned count);
 void find_erase_prepare_sector(unsigned cclk, unsigned flash_address);
@@ -72,14 +69,6 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
 
     if(byte_ctr == FLASH_BUF_SIZE) {
 
-      unsigned int block_array_index = ((unsigned)flash_address -
-          0x10000) / BLOCKSIZE;
-      if(block_written_map[block_array_index]) {
-        debug("Address 0x%02x already written, blocking second write",
-            (unsigned)flash_address);
-        return CMD_SUCCESS;
-      }
-
       debug("writing to user flash address 0x%x", flash_address);
       /* We have accumulated enough bytes to trigger a flash write */
       find_erase_prepare_sector(SystemCoreClock/1000, (unsigned)flash_address);
@@ -95,7 +84,6 @@ unsigned write_flash(unsigned * dst, char * src, unsigned no_of_bytes)
         while(1); /* No way to recover. Just let Windows report a write failure */
       }
 
-      block_written_map[block_array_index] = true;
 
       /* Reset byte counter and flash address */
       byte_ctr = 0;
