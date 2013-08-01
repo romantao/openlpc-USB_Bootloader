@@ -46,8 +46,10 @@ LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc
 
 ifdef DEBUG
 CC_FLAGS += -g -ggdb
+CC_SYMBOLS += -D__DEBUG__
 else
 CC_FLAGS += -Os
+CC_SYMBOLS += -DNDEBUG
 endif
 
 OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
@@ -76,7 +78,7 @@ $(PROJECT).bin: $(PROJECT).elf
 flash: all
 	@echo "Flashing bootloader via JTAG with OpenOCD..."
 	@(openocd -f $(OPENOCD_CONF_BASE)/interface/$(JTAG_INTERFACE).cfg -f $(OPENOCD_CONF_BASE)/flash.cfg && echo "$(GREEN)Flashed bootloader successfully.$(COLOR_RESET)") || echo "$(RED)Flashing bootloader failed.$(COLOR_RESET)"
-	
+
 
 gdb: all
 	@openocd -f $(OPENOCD_CONF_BASE)/gdb.cfg
