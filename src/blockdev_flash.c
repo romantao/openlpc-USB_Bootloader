@@ -78,6 +78,21 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
                 }
             }
         }
+
+        for(int i = 0; i < MAX_ROOT_DIR_ENTRIES; i++) {
+            FatDirectoryEntry_t* directory_entry = &DIRECTORY_ENTRIES[i];
+            if(directory_entry->filename[0] == NULL || directory_entry->filename[0] == 0xeb) {
+                continue;
+            } else if(directory_entry->attributes == 0xf) {
+                debug("Found a VFAT long file name entry...skipping...");
+                continue;
+            }
+            debug("filename: %s, attributes: 0x%x, first cluster: %d, size: %d",
+                    directory_entry->filename,
+                    directory_entry->attributes,
+                    directory_entry->first_cluster_low_16,
+                    directory_entry->filesize);
+        }
     } else {
         // Some OSs (e.g. Linux and OS X) start writing the file from the 2nd
         // cluster instead of the first. Normally that's fine since they just

@@ -21,6 +21,7 @@
 #define MSC_BlockSize   512
 #define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 
+#define MAX_ROOT_DIR_ENTRIES 16
 #define ROOT_DIR_ENTRIES 2
 #define FAT_ENTRIES 2
 #define BOOT_SECT_SIZE  MSC_BlockSize
