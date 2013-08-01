@@ -140,9 +140,12 @@ int BlockDevRead(uint32_t dwAddress, uint8_t * pbBuf) {
         } else if(offset < BOOT_SECT_SIZE + FAT_SIZE) {
             data = FAT[offset - BOOT_SECT_SIZE];
         } else if(offset < BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE) {
-            data = ((uint8_t*)&DIRECTORY_ENTRIES)[
-                    offset - BOOT_SECT_SIZE - FAT_SIZE];
-            debug("offset 0x%x, data 0x%x", offset, data);
+            uint32_t directory_offset = offset - BOOT_SECT_SIZE - FAT_SIZE;
+            if(directory_offset > (ROOT_DIR_ENTRIES * DIRECTORY_ENTRY_SIZE)) {
+                data = 0;
+            } else {
+                data = ((uint8_t*)&DIRECTORY_ENTRIES)[directory_offset];
+            }
         } else {
             data = *((uint8_t*)USER_FLASH_START + (offset - (BOOT_SECT_SIZE +
                             FAT_SIZE + ROOT_DIR_SIZE)));

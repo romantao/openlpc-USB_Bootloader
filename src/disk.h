@@ -22,7 +22,7 @@
 #define MSC_BlockCount  (MSC_MemorySize / MSC_BlockSize)
 
 #define ROOT_DIR_ENTRIES 2
-#define FAT_ENTRIES 1
+#define FAT_ENTRIES 2
 #define BOOT_SECT_SIZE  MSC_BlockSize
 #define ROOT_DIR_SIZE   (MSC_BlockSize * ROOT_DIR_ENTRIES)
 #define FAT_SIZE        (MSC_BlockSize * FAT_ENTRIES)
