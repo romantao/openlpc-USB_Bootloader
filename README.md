@@ -153,8 +153,8 @@ source. Representatives of NXP have publicly stated that they are OK with the
 examples being used and redistributed, so we use it here in good faith
 ([source](http://knowledgebase.nxp.com/showthread.php?t=2514&langid=2)).
 
-A few remaining pieces were developed by Code Red, and are available under a
-more restrictive license (`blockdev_flash.c`):
+A few remaining lines of code within other files pieces were developed by Code
+Red, and are possibly available under a more restrictive license:
 
     The software is owned by Code Red Technologies and/or its suppliers, and is
     protected under applicable copyright laws.  All rights are reserved.  Any
@@ -172,4 +172,4 @@ more restrictive license (`blockdev_flash.c`):
 Code Red has taken a public position that they are fine with redistributing the
 code and including it in products, as long as the copyright message remains
 intact so we use it here in good faith
-([source](http://knowledgebase.nxp.trimm.net/showthread.php?p=12830).
+([source](http://knowledgebase.nxp.trimm.net/showthread.php?p=12830)).
