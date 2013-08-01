@@ -60,8 +60,8 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
             FAT[(offset + i) - BOOT_SECT_SIZE] = pbBuf[i];
         }
     } else if(offset < BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE) {
-        debug("Modifying directory entry %d", (BOOT_SECT_SIZE + FAT_SIZE +
-                    ROOT_DIR_SIZE) - offset % DIRECTORY_ENTRY_SIZE);
+        debug("Modifying directory entry %d", ((BOOT_SECT_SIZE + FAT_SIZE +
+                    ROOT_DIR_SIZE) - offset) % DIRECTORY_ENTRY_SIZE);
 
         for(uint32_t i = 0; i < BLOCKSIZE; i++) {
             ((uint8_t*)&DIRECTORY_ENTRIES)[(offset + i) - BOOT_SECT_SIZE -

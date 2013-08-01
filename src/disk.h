@@ -24,7 +24,7 @@
 #define ROOT_DIR_ENTRIES 2
 #define FAT_ENTRIES 2
 #define BOOT_SECT_SIZE  MSC_BlockSize
-#define ROOT_DIR_SIZE   (MSC_BlockSize * ROOT_DIR_ENTRIES)
+#define ROOT_DIR_SIZE   MSC_BlockSize
 #define FAT_SIZE        (MSC_BlockSize * FAT_ENTRIES)
 
 #define BLOCKS_PER_CLUSTER  64
