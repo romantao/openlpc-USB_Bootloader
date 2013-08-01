@@ -71,7 +71,8 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
         for(int i = 0; i < MAX_ROOT_DIR_ENTRIES; i++) {
             FatDirectoryEntry_t* directory_entry = &DIRECTORY_ENTRIES[i];
 
-            // erasing a file, mark first byte of entry with 0xe5
+            // a file is "deleted" when the first byte of the directory entry is
+            // marked 0xe5
             if(directory_entry->filename[0] == 0xe5 &&
                         !strncmp(&(directory_entry->filename[1]), "IRMWARE", 7) &&
                         !user_flash_erased) {
@@ -81,7 +82,10 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
             }
 
             if(directory_entry->first_cluster_low_16 == 3) {
-                // TODO explain this
+                // If we adjust the starting cluster of a firmware write from 3
+                // to 2, actually update it in the directory entry so if the
+                // host reads it back later on, it doesn't think cluster 2 is
+                // still free (and ripe for a stupid hidden file).
                 debug("Fudging the first cluster for %s",
                         directory_entry->filename)
                 directory_entry->first_cluster_low_16 = 2;
@@ -119,6 +123,14 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
         // directory entires in flash somewhere, read it when the bootloader
         // starts, and jump to the correct cluster number.
         if(offset == (0x8000 + BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)) {
+            // If a small temp file has already been written starting at LBA 4 (right
+            // where the firmware should start), we need to detect that and
+            // allow re-writing those blocks with the actual firmware.
+            // If any of the first 9 blocks aren't written when we get a write
+            // request at the 3rd cluster (0x18000, meaning it's most likely the
+            // firmware itself begin written from OS X or Linux), reset the
+            // "written" status for all of the blocks and allow us to re-write
+            // the first 8 blocks from 0x10000.
             bool bogus_file_up_front = false;
             for(int i = 0; i < 9; i++) {
                 bogus_file_up_front = bogus_file_up_front || !block_written_map[i];
@@ -126,6 +138,7 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
                     break;
                 }
             }
+
             if(!block_written_map[0] || bogus_file_up_front) {
                 FORCE_FIRST_CLUSTER_WORKAROUND_OFFSET = -0x8000;
                 debug("Detecting a firmware write not starting from first "
@@ -147,10 +160,7 @@ int BlockDevWrite(uint32_t dwAddress, uint8_t * pbBuf) {
                 (offset - (BOOT_SECT_SIZE + FAT_SIZE + ROOT_DIR_SIZE)));
         unsigned int block_array_index = ((unsigned)flash_address -
                 0x10000) / BLOCKSIZE;
-        /* debug("flash address 0x%02x", flash_address); */
-        /* debug("block array index: %d", block_array_index); */
         if(block_array_index > 1024) {
-            /* debug("requested block is corrupted, bailing on write request"); */
         } else if(block_written_map[block_array_index]) {
             debug("Address 0x%02x already written, blocking second write",
                     (unsigned)flash_address);

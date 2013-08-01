@@ -15,6 +15,11 @@ microcontroller. The lineage of this bootloader:
   LPC17xx, and re-used as many example files from the LPCUSB project directly.
 * Chris also replaced the startup files with a Git submodule pointer to the ARM
   CDL project.
+* Chris fixed an bug with non-sequntial writes that would break large-ish
+  firmware writes.
+* Chris added workarounds to allow flashing from all platforms from the CLI or a
+  file browser (it's not exactly pretty, but it works - comments inline about
+  the specific workarounds).
 
 ## Installing the Bootloader
 
@@ -69,12 +74,16 @@ hitting the reset button. A USB drive should appear.
 
 ### Mac OS X
 
-There is an [issue](https://github.com/openxc/openlpc-USB_Bootloader/issues/6)
-with writing the firmware using Finder right now, so instead you must use the
-command line.
-
 To flash, hold down the bootloader entry button while plugging into USB or
 hitting the reset button. A USB drive should appear.
+
+**Using Finder**
+
+* Delete the firmware.bin file
+* Copy your new firmware.bin over (the filename doesn't matter)
+* Eject and reset the microcontroller
+
+**Command Line**
 
 Copy your new firmware.bin over the top of the existing firmware.bin from the
 command line:
