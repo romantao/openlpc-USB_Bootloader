@@ -334,7 +334,6 @@ uint8_t* SCSIHandleData(uint8_t* pbCDB, uint8_t iCDBLen, uint8_t* pbData, uint32
         if (dwBufPos == 0) {
             // write new block
             dwBlockNr = dwLBA + (dwOffset / BLOCKSIZE);
-            debug("W");
 
             if (BlockDevWrite(dwBlockNr, abBlockBuf) < 0) {
                 dwSense = WRITE_ERROR;
