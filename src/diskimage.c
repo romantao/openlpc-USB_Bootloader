@@ -11,33 +11,57 @@
 // use without further testing or modification.
 //-----------------------------------------------------------------------------
 
-/***********************************************************************
- * Code Red Technologies - Minor modifications to original NXP AN10866
- * example code for use in RDB1768 secondary USB bootloader based on
- * LPCUSB USB stack.
- *
- * diskimage.c - definition of boot sector and root directory for FAT12
- *               tables used for accessing LPC1768 flash by RDB1768 USB
- *               bootloader.
- *
- * *********************************************************************/
-
-
 #include "disk.h"
 
-/* FAT12 Boot sector constants */
-const unsigned char BootSect[] = {
-0xEB,0x3C,0x90,0x4D,0x53,0x44,0x4F,0x53,0x35,0x2E,0x30,0x00,0x02,BLOCKS_PER_CLUSTER,0x01,0x00,
-0x01,0x10,0x00,0xEC,0x03,0xF8,0x02,0x00,0x01,0x00,0x01,0x00,0x00,0x00,
+const FatBootSector_t BOOT_SECTOR = {
+    {0xEB, 0x3C, 0x90},
+    {0x4D, 0x53, 0x44, 0x4F, 0x53, 0x35, 0x2E, 0x30},
+    MSC_BlockSize,
+    BLOCKS_PER_CLUSTER,
+    1,
+    1,
+    16,
+    // this is the block count which can only be known at runtime if we want to
+    // keep things flexible - it's maximized here but will be smaller when
+    // handled in BlockDevRead
+    0x03EC,
+    0xF8,
+    2,
+    1,
+    1
 };
 
-/* FAT12 Root directory entry constants */
-const unsigned char RootDirEntry[DIR_ENTRY] = {
- 'L', 'P', 'C', '1', '7', '5', '9',' ', ' ', ' ', ' ', 0x28,0x00,0x00,0x00,0x00,
-0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
- 'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', 'B', 'I', 'N',0x20,0x18,0xbc,0x41,0x97,
-0x37,0x38,0x37,0x38,0x00,0x00,0x3d,0x6e,0x2b,0x38,0x02,0x00,0x00,0xD0,0x07,0x00,
+FatDirectoryEntry_t DIRECTORY_ENTRIES[ROOT_DIR_ENTRIES] = {
+    { {'L', 'P', 'C', '1', '7', '5', '9',' ', ' ', ' ', ' '},
+        // file attributes
+        0x28
+    },
+    {
+        // 8.3 file name
+        {'F', 'I', 'R', 'M', 'W', 'A', 'R', 'E', 'B', 'I', 'N'},
+        // file attributes
+        0x20,
+        // reserved for Windows NT
+        0x18,
+        // creation time in tenths of a second
+        0xbc,
+        // time of file creation
+        0x9741,
+        // date of file creation
+        0x3837,
+        // last accessed date
+        0x3837,
+        // high 16 bits of the first cluster number (always 0 for FAT12)
+        0,
+        // last modification time
+        0x6e3d,
+        // last modification date
+        0x382b,
+        // low 16 bits of the cluster number
+        2,
+        // file size in bytes
+        0x7D000
+    }
  };
 
-/* RAM to store the file allocation table */
-unsigned char  Fat_RootDir[FAT_SIZE + ROOT_DIR_SIZE];
+uint8_t FAT[FAT_SIZE];
