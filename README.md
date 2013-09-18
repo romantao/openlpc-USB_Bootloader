@@ -27,6 +27,10 @@ the board and the board powered up:
 
     $ make flash
 
+If you are using an Olimex ARM-USB-OCD-H JTAG adapter, you need to specify a different interface:
+
+    $ JTAG_INTERFACE=olimex-arm-usb-ocd-h make flash
+
 ## Building User Firmware
 
 See the simple program in the `example` directory for an example of how to build
