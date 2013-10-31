@@ -116,23 +116,6 @@ Mounting the USB disk drive, deleting firmware.bin and copying over the new file
 works fine now (after some bug fixes in the [original version of this
 bootloader](http://dangerousprototypes.com/docs/LPC_ARM_quick_start#Bootloaders).
 
-**mtools Method**
-
-Alternatively, you can use `mdel` and `mcopy` tools from the `mtools` package.
-To flash, hold down the bootloader entry button while powering on. Then:
-
-    $ sudo mdel -i /dev/sdc ::/firmware.bin
-    $ sudo mcopy -i /dev/sdc firmware.bin ::/firmware.bin
-
-where `/dev/sdc` is the device name of the LPC17xx. No need to unmount or
-anything after that, just reset the board.
-
-There's a utility script at `script/flash.sh` to automate these two steps,
-since sometimes it can take a few seconds before the LPC17xx filesystem can be
-written, and you have to keep retrying the mdel command. Run it like so:
-
-    $ ../script/flash.sh /dev/sdc blink.bin
-
 ## License
 
 The LPCUSB library is made availble under the BSD license. It is linked to from
