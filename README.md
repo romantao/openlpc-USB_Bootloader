@@ -89,8 +89,9 @@ hitting the reset button. A USB drive should appear.
 
 **Command Line**
 
-Copy your new firmware.bin over the top of the existing firmware.bin from the
-command line:
+Open the Terminal app and run this to update the
+firmware, assuming the file "newfirmware.bin" is in the current
+directory and is the new version of the firmware you want to flash:
 
   $ cp newfirmware.bin /Volumes/LPC1759/firmware.bin
 
