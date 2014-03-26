@@ -33,33 +33,17 @@
 
 #include <stdint.h>
 #include "usbapi.h"
-#include "debug.h"
+#include "log.h"
 #include "msc_bot.h"
 #include "disk.h"
 
-/*
- * The LPCUSB stack can be configured to print debug messages - for
- * which the Code Red port uses semihosted printf's. However doing
- * this is not compatible with the use of the bootloader. Thus we
- * check whether the symbol controlling the use of debug messages
- * in the LPCUSB file usbdebug.h is defined. If it is, then LPCUSB
- * is configured to use semihosted printf's, and hence we give
- * an error here.
- */
-#if defined (DEBUG_MESSAGES)
-#error "Please build RDB1768cmsis_usbstack without debug messages."
-#endif
-
 #define BAUD_RATE    115200
-
 #define MAX_PACKET_SIZE    64
-
 #define LE_WORD(x)        ((x)&0xFF),((x)>>8)
 
+static uint8_t abClassReqData[4];
 
-static U8 abClassReqData[4];
-
-static const U8 abDescriptors[] = {
+static const uint8_t abDescriptors[] = {
 
 // device descriptor
     0x12,
@@ -125,7 +109,6 @@ static const U8 abDescriptors[] = {
     DESC_STRING,
     'L', 0, 'P', 0, 'C', 0, '1', 0, '7', 0, '5', 0, '9', 0, ' ', 0,'B',0,'o',0,'o',0,'t',0,'l',0,'o',0,'a',0,'d',0,'e',0,'r',0,
 
-
 // terminating zero
     0
 };
@@ -137,15 +120,15 @@ static const U8 abDescriptors[] = {
         Handle mass storage class request
 
 **************************************************************************/
-static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
-{
-    if (pSetup->wIndex != 0) {
-        DBG("Invalid idx %X\n", pSetup->wIndex);
-        return FALSE;
+static bool HandleClassRequest(TSetupPacket *pSetup, int *piLen, uint8_t **ppbData) {
+    if(pSetup->wIndex != 0) {
+        debug("Invalid idx %X", pSetup->wIndex);
+        return false;
     }
-    if (pSetup->wValue != 0) {
-        DBG("Invalid val %X\n", pSetup->wValue);
-        return FALSE;
+
+    if(pSetup->wValue != 0) {
+        debug("Invalid val %X", pSetup->wValue);
+        return false;
     }
 
     switch (pSetup->bRequest) {
@@ -158,24 +141,23 @@ static BOOL HandleClassRequest(TSetupPacket *pSetup, int *piLen, U8 **ppbData)
 
     // MSC reset
     case 0xFF:
-        if (pSetup->wLength > 0) {
-            return FALSE;
+        if(pSetup->wLength > 0) {
+            return false;
         }
         MSCBotReset();
         break;
 
     default:
-        DBG("Unhandled class\n");
-        return FALSE;
+        debug("Unhandled class");
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 
-void usb_msc_start (void)
-{
+void usb_msc_start (void) {
 
-    DBG("Initialising USB stack\n");
+    debug("Initialising USB stack");
 
     // initialise stack
     USBInit();
@@ -194,14 +176,13 @@ void usb_msc_start (void)
     USBHwRegisterEPIntHandler(MSC_BULK_IN_EP, MSCBotBulkIn);
     USBHwRegisterEPIntHandler(MSC_BULK_OUT_EP, MSCBotBulkOut);
 
-    DBG("Starting USB communication\n");
+    debug("Starting USB communication");
 
     // connect to bus
-    USBHwConnect(TRUE);
+    USBHwConnect(true);
 
     // call USB interrupt handler continuously
     while (1) {
         USBHwISR();
     }
 }
-

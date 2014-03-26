@@ -3,4 +3,4 @@
 	url = https://github.com/openxc/nxp-cdl
 [submodule "src/lpcusb"]
 	path = src/lpcusb
-	url = git://github.com/openxc/lpcusb.git
+	url = https://github.com/openxc/lpcusb.git

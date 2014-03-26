@@ -19,4 +19,4 @@ set remote hardware-watchpoint-limit 4
 
 target remote localhost:3333
 
-echo .gdbinit for cantranslator has been executed \n
+echo .gdbinit for blink has been executed \n

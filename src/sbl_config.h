@@ -47,7 +47,6 @@
 #define USER_START_SECTOR 16
 #define MAX_USER_SECTOR 29
 
-
 /*
  * CodeRed - change FLASH_BUF_SIZE from 256 to 512 to match buffer
  * size used by SCSI layer of LPCUSB

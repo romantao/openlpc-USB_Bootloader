@@ -153,7 +153,7 @@ echo "Updating Git submodules..."
 set +e
 if ! git submodule update --init --quiet; then
     echo "Unable to update git submodules - try running \"git submodule update\" to see the full error"
-    echo "If git complains that it \"Needed a single revision\", run \"rm -rf src/libs\" and then try the bootstrap script again"
+    echo "If git complains that it \"Needed a single revision\", run \"rm -rf src/CDL src/lpcusb\" and then try the bootstrap script again"
     if [ $OS == "cygwin" ]; then
         echo "In Cygwin this may be true (ignore if you know ca-certifications is installed:"
         _cygwin_error "ca-certificates"
@@ -164,7 +164,7 @@ set -e
 
 # ARM / LPC17XX Dependencies
 
-if ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
+if true || ! command -v arm-none-eabi-gcc >/dev/null 2>&1; then
 
     echo "Installing GCC for ARM Embedded..."
 

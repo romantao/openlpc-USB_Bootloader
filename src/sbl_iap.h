@@ -14,6 +14,8 @@
 #ifndef  _SBL_IAP_H
 #define  _SBL_IAP_H
 
+#include <stdbool.h>
+
 extern const unsigned sector_start_map[];
 extern const unsigned sector_end_map[];
 
@@ -24,6 +26,7 @@ int user_code_present(void);
 void erase_user_flash(void);
 void check_isp_entry_pin(void);
 void erase_user_flash(void);
+void reset_sector_erasure_status();
 
 typedef enum
 {

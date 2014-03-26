@@ -1,4 +1,19 @@
+GCC_ARM_ON_PATH = $(shell command -v arm-none-eabi-gcc >/dev/null; echo $$?)
+
+GREEN="$${txtbld}$$(tput setaf 2)"
+RED="$${txtbld}$$(tput setaf 1)"
+COLOR_RESET=$$(tput sgr0)
+
 GCC_BIN =
+ifneq ($(GCC_ARM_ON_PATH),0)
+GCC_BIN = ../dependencies/gcc-arm-embedded/bin/
+endif
+
+ifndef JTAG_INTERFACE
+	JTAG_INTERFACE = olimex-arm-usb-ocd
+endif
+
+OPENOCD_CONF_BASE = ../conf/openocd
 PROJECT = bootloader
 CMSIS_PATH = ./CDL/CMSISv2p00_LPC17xx
 DRIVER_PATH = ./CDL/LPC17xxLib
@@ -8,6 +23,7 @@ LINKER_SCRIPT = LPC1768.ld
 
 LOCAL_C_SRCS = $(CMSIS_PATH)/src/core_cm3.c $(CMSIS_PATH)/src/system_LPC17xx.c \
 			   $(wildcard $(CMSIS_PATH)/source/*.c) $(wildcard *.c) \
+				$(wildcard $(DRIVER_PATH)/src/*.c) \
 			   $(wildcard lpcusb/target/*.c) \
 			   lpcusb/target/examples/msc_bot.c
 OBJECTS = $(LOCAL_C_SRCS:.c=.o)
@@ -30,8 +46,10 @@ LD_SYS_LIBS = -lstdc++ -lsupc++ -lm -lc -lgcc
 
 ifdef DEBUG
 CC_FLAGS += -g -ggdb
+CC_SYMBOLS += -D__DEBUG__
 else
 CC_FLAGS += -Os
+CC_SYMBOLS += -DNDEBUG
 endif
 
 OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
@@ -39,7 +57,7 @@ OBJCOPY = $(GCC_BIN)arm-none-eabi-objcopy
 all: $(PROJECT).bin
 
 clean:
-	rm -f $(PROJECT).bin $(PROJECT).elf $(OBJECTS) *.o
+	rm -f $(PROJECT).bin $(PROJECT).elf $(OBJECTS) *.o *.map
 
 .s.o:
 	$(AS)  $(CC_FLAGS) $(CC_SYMBOLS) -o $@ $<
@@ -58,7 +76,9 @@ $(PROJECT).bin: $(PROJECT).elf
 	$(OBJCOPY) -O binary $< $@
 
 flash: all
-	@openocd -f flash.cfg
+	@echo "Flashing bootloader via JTAG with OpenOCD..."
+	@(openocd -f $(OPENOCD_CONF_BASE)/interface/$(JTAG_INTERFACE).cfg -f $(OPENOCD_CONF_BASE)/flash.cfg && echo "$(GREEN)Flashed bootloader successfully.$(COLOR_RESET)") || echo "$(RED)Flashing bootloader failed.$(COLOR_RESET)"
+
 
 gdb: all
-	@openocd -f gdb.cfg
+	@openocd -f $(OPENOCD_CONF_BASE)/gdb.cfg
